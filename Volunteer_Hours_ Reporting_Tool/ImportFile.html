@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <?!= include('CSS'); ?>
+  </head>
+  <body>
+
+    <!-- TODO add back button functionality -->
+
+    <div class="container-fluid vh-100 grad">
+
+      <div class="container py-5" id="import-file" name="import-file">
+        <p class="col text-center">Would you like to import a new spreadsheet from Legal Server/Every Action?</p>
+        <br>
+        <div class="input-group">
+          <label class="input-group-btn">
+            <span class="btn btn-secondary">
+              Browse<input type="file" id="customFile" style="display: none;">
+            </span>
+          </label>
+          <input type="text" class="form-control" id="customFileText" placeholder=".csv files only" readonly>
+        </div>
+        <br>
+        <br>
+        <p class="col text-center" id="pb-upload"><input type="button" class="btn btn-primary disabled" id="ub1" name="ub1" value="Next" onclick="loadFile(this)" disabled></p>
+      </div>
+
+      <div class="container py-5 col text-center d-none" id="cc-div">
+        <p class="col text-center">Select cell with column name for case/client data and click "Next".</p>
+        <br>
+        <input type="button" class="btn btn-primary" id="ccb" name="ccb" value="Next" onclick="selectColumnName(this)">
+      </div>
+
+      <div class="container py-5 col text-center d-none" id="ec-div">
+        <p class="col text-center">Select cell with column name for attorney email data and click "Next".</p>
+        <br>
+        <input type="button" class="btn btn-primary" id="ecb" name="ecb" value="Next" onclick="selectColumnName(this)">
+      </div>
+
+      <div class="container py-5 col text-center d-none" id="lfc-div">
+        <p class="col text-center">Select cell with column name for law firm data and click "Next".</p>
+        <br>
+        <input type="button" class="btn btn-primary" id="lfb" name="lfb" value="Next" onclick="selectColumnName(this)">
+      </div>
+
+      <div class="container py-5 col text-center d-none" id="pbc-div">
+        <p class="col text-center">Select cell with column name for pro bono attorney names and click "Next".</p>
+        <br>
+        <input type="button" class="btn btn-primary" id="pbb" name="pbb" value="Next" onclick="selectColumnName(this)">
+      </div>
+
+      <div class="container py-5 col text-center d-none" id="mec-div">
+        <p class="col text-center">Select cell with column name for manager email data and click "Next".</p>
+        <br>
+        <input type="button" class="btn btn-primary" id="meb" name="meb" value="Next" onclick="selectColumnName(this)">
+      </div>
+
+      <div class="container py-5 col text-center" name="loading">
+        <div class="spinner-border text-primary d-none" id="loader" role="status"></div>
+      </div>
+      
+      <div class="container py-2 d-none" id="formatting">
+        <p class="text-center" id="p-formatting">Formatting your file.  This may take a few minutes . . .</p>
+        <p class="text-center d-none" id="p-validating">Validating email addresses . . .</p>
+      </div>
+
+    </div>
+  </body>
+  <?!= include('ImportFileJS'); ?>
+
+</html>
+

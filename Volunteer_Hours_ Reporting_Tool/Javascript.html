@@ -1,0 +1,232 @@
+<script>
+ 
+  $(window).on('load', preventFormNewPage);
+  $('#submitbutton').on('click', checkLoginValidated);
+
+
+  function preventFormNewPage() {
+    var forms = document.querySelectorAll('form');
+    for (var i=0; i < forms.length; i++) {
+      forms[i].addEventListener('submit', function(event) {
+        event.preventDefault();
+      });
+    }
+  }
+
+
+  function checkLoginValidated(event) {
+    var submitForm = $('#loginform')[0];
+    if (!submitForm.checkValidity()) { 
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    submitForm.classList.add('was-validated');
+  }
+
+
+function checkTableValidated() {
+  var isValidated = true;
+  var formCells = document.querySelectorAll('form[name="form-cell"]');
+  Array.prototype.slice.call(formCells)
+    .forEach(function(input) {
+      if (!input.checkValidity()) {
+        isValidated = false;
+      }
+      input.classList.add('was-validated');
+    })
+  if (!isValidated) {
+    //alert('You must fill out all cells in the table to save'); // TODO clean up alert formatting //
+  } else {
+    handleSave();
+  }
+}
+
+
+  function handleFormSubmit(formObject) {
+    $('#verified').addClass('d-none');
+    $('#sheet').addClass('d-none');
+    $('#loader').removeClass('d-none');
+    $('#confirmuser').text('Loading your report...');
+    $('#confirmuser').removeClass('d-none');
+    $('#report-div').empty();
+    
+    google.script.run
+      .withSuccessHandler(onSuccessSubmit)
+      .withFailureHandler(error => {alert(error.message);})
+      .verifyRegisteredVolunteer([formObject.key.value, formObject.email.value]); 
+  }
+
+
+  function onSuccessSubmit([isVerified, pk, email]) {
+    if (isVerified) {
+      //$('#report').attr('name', pk);
+      google.script.run
+        .withSuccessHandler(onSuccessBuildTable)
+        .withFailureHandler(error => {alert(error.message);})
+        .getTableData(pk);
+
+    } else {
+      $('#confirmuser').html(
+
+        // TODO add link to open user's email client //
+        'Sorry, your volunteer record was not found. Make sure you\'ve input your email and key code correctly and try again.<br><br>' + 
+        'If the problem persists, please contact <b>lfaulkner@hrionline.org</b>.'
+      );
+      $('#loader').addClass('d-none');
+      $('#confirmuser').removeClass('d-none');
+    }
+  }
+
+
+  function onSuccessBuildTable([tableCols, caseNames, firmNameDict, pk]) {
+    $('#report-div').append(
+    $('<table>').prop({
+        class: 'table table-striped table-bordered',
+        id: 'report',
+        name: '#'
+      })
+    );
+    $('#report').append(
+      $('<thead>').prop({
+        class: 'thead-dark'
+      })
+    );
+    $('thead').append(
+      $('<tr>').prop({
+        id: 'th-row'
+      })
+    );
+    $('#report').append(
+      $('<tbody>')
+    );
+    $('#report-div').append(
+      $('<br>')
+    );
+
+    for (var header of tableCols) {
+      $('#th-row').append(
+        $('<th>').prop({
+          class: 'td-head'
+        }).html(header)
+      );
+    }
+
+    for (var i=0; i < caseNames.length; i++) {
+      $('tbody').append(
+        $('<tr>').prop({
+          id: 'td-row' + i,
+          class: 'td-row'
+        })
+      );
+      $('#td-row' + i).append(
+        $('<td>').prop({
+          class: 'data',
+          id: 'td-input-' + i
+        }).html(caseNames[i])
+      )
+      for (var j=1; j < tableCols.length; j++) {
+        $('#td-row' + i).append(
+          $('<td>').prop({
+            class: 'table-data',
+            name: 'td-input',
+            id: 'td-input-' + i + j
+          })
+        );
+        $('#td-input-' + i + j).append(
+          $('<form>').prop({
+            class: 'needs-validation',
+            id: 'form-cell-' + i + j,
+            name: 'form-cell',
+            novalidate: 'novalidate'
+          })
+        );
+        $('#form-cell-' + i + j).append(
+          $('<input>').prop({
+            class: 'form-control',
+            type: 'text',
+            id: 'd-' + i + j,
+            name: 'd-' + i + j,
+            value: (tableCols[j] == Object.keys(firmNameDict)[0]) ? firmNameDict[tableCols[j]] : '',
+            pattern: (tableCols[j].startsWith('Hours') || tableCols[j].startsWith('Billing')) ? '[0-9]+\.{0,1}(?=[0-9]+)[0-9]{0,2}' : '[\\w\\W]+',
+            required: 'required'
+          })
+        ).append(
+          $('<div>').prop({
+            class: 'invalid-feedback',
+            value: 'You must fill out this cell.'
+          })
+        );
+      }  
+    }
+
+    $('#report').attr('name', pk);
+    $('#confirmuser').text('Report your hours below and click "Save".');
+    $('#confirmuser').removeClass('d-none');
+    $('#loader').addClass('d-none');
+    $('#sheet').removeClass('d-none'); 
+  }
+
+  
+  function handleSave() {
+    $('#loader').removeClass('d-none');
+    var pk = $('#report').attr('name');
+    var table = $('#report')[0];
+    var tableData = [];
+    var inputValue;
+
+    for (var i=1; i < table.rows.length; i++) {
+      row = table.rows.item(i).cells;
+      res = []; 
+      for (var j=0; j < row.length; j++) {
+        var cell = row.item(j);
+        if (Object.prototype.toString.call(cell.firstChild) == '[object Text]') {
+          inputValue = cell.firstChild.nodeValue;
+        } else {
+          inputValue = cell.firstChild.firstChild.value;
+        }
+        res.push(inputValue);
+      }
+      tableData.push(res);
+    }
+    
+    google.script.run
+      .withSuccessHandler(onSuccessSave)
+      .withFailureHandler(error => {alert(error.message);})
+      .updateAggregateReport([tableData, pk]);
+  }
+ 
+
+  function onSuccessSave([isUpdated, pk, alertMessage]) {
+    $('#loader').addClass('d-none');
+
+    if (isUpdated) {
+      $('#confirmuser').addClass('d-none');
+      $('#verified').removeClass('d-none');
+      $('#sheet').addClass('d-none');
+
+    } else {
+      alert(alertMessage);
+      google.script.run.logErrorFromHTML(pk);
+    }
+  }
+
+
+  function handleCancel(click) {
+    $('#loader').removeClass('d-none');
+    $('#sheet').addClass('d-none');
+    $('#confirmuser').text('Reloading page...');
+    $('#confirmuser').removeClass('d-none');
+    google.script.run
+      .withSuccessHandler(onSuccessCancel)
+      .withFailureHandler(error => {alert(error.message);})
+      .reloadPage();
+    }
+
+
+  function onSuccessCancel(indexHTML) {
+    window.open(indexHTML, '_top');
+    google.script.run.logUserPageReload();
+
+  }
+
+</script>
