@@ -1,5 +1,3 @@
-Original line says this 
-
-Next original line says that
-
+Original line says this
+Then next line that
 Finally end
