@@ -1,0 +1,118 @@
+<script>
+
+  $('#customFile').on('change', function() {
+    var fileName = $('#customFile')[0].files[0].name;
+    $('#customFileText').attr('value', fileName);
+    if (fileName.endsWith('.csv')) {
+      $('#ub1').prop('disabled', false);
+      $('#ub1').removeClass('disabled');    
+    } else {
+      google.script.run.raiseAlert('Failed to upload file', 'Only files in .csv format are permitted'); 
+    }
+  })
+
+  function loadFile(element) {
+    $('#loader').removeClass('d-none');
+    $('#import-file').addClass('d-none');
+    var file = $('#customFile')[0].files[0];
+
+    if (file) {
+      file.text().then( text => {
+        google.script.run
+          .withSuccessHandler( (uploadedSheetName) => {
+            $('#loader').addClass('d-none');
+            if (uploadedSheetName) {
+              $('#cc-div').removeClass('d-none');
+            } else {
+              google.script.run.raiseAlert('Failed to upload file', 'Please contact blake.holleman@gmail.com');
+              resetProcess();
+            }
+          }) 
+          .withFailureHandler(error => {alert(error.message);})        
+          .convertFileUpload(text);  
+      })
+    }
+  }
+
+  function selectColumnName(element) {
+    var id = element.id;
+    var parentId = $('#' + id).parent().attr('id');
+    $('#' + parentId).addClass('d-none');
+    $('#loader').removeClass('d-none');
+    google.script.run
+      .withSuccessHandler( isSuccessful => {
+        if (isSuccessful) {
+          onSuccessChangeDiv(id)
+        } else {
+          $('#loader').addClass('d-none');
+          $('#' + parentId).removeClass('d-none');
+        }
+      })
+      .withFailureHandler(error => {alert(error.message);})
+      .selectColumnName(id);
+  }
+
+  function onSuccessChangeDiv(id) {
+    if (id == 'ccb') {
+      $('#loader').addClass('d-none');
+      $('#cc-div').addClass('d-none');
+      $('#ec-div').removeClass('d-none');
+    } else if (id == 'ecb') {
+      $('#loader').addClass('d-none');
+      $('#ec-div').addClass('d-none');
+      $('#lfc-div').removeClass('d-none');
+    } else if (id == 'lfb') {
+      $('#loader').addClass('d-none');
+      $('#lfc-div').addClass('d-none');
+      $('#pbc-div').removeClass('d-none');
+    } else if (id == 'pbb') {
+      $('#loader').addClass('d-none');
+      $('#pbc-div').addClass('d-none');
+      $('#mec-div').removeClass('d-none');
+    } else if (id == 'meb') {
+      $('#mec-div').addClass('d-none');
+      $('#loader').removeClass('d-none');
+      $('#p-formatting').removeClass('d-none');
+      $('#p-validating').addClass('d-none');
+      $('#formatting').removeClass('d-none');
+    
+      finalizeProcess();   
+    }
+  }
+
+  function finalizeProcess() {
+    google.script.run
+      .withSuccessHandler( sheetIsFormatted => {
+        if (sheetIsFormatted) {
+          $('#p-formatting').addClass('d-none');
+          $('#p-validating').removeClass('d-none');
+
+          google.script.run
+            .withSuccessHandler( sheetIsValidated => {
+              google.script.run.raiseAlert(
+                'You\'ve successfully uploaded a new protected sheet!',
+                'Run "Activate Sheets" from the Add-ons menu to complete the setup process.'
+              );
+              resetProcess();
+            })
+            .withFailureHandler(error => {alert(error.message);})
+            .validateData();
+        }
+
+      })
+      .withFailureHandler(error => {alert(error.message);})       
+      .formatProtectedSheet(); 
+  }
+
+  function resetProcess() {
+    $('#loader').addClass('d-none');
+    $('#formatting').addClass('d-none');
+    $('#customFile').val('');
+    $('#customFileText').removeAttr('value');
+    $('#ub1').prop('disabled', true);
+    $('#ub1').addClass('disabled');
+    $('#import-file').removeClass('d-none');
+  }
+
+</script>
+
