@@ -192,7 +192,7 @@ function combineRowsByProBono(sheet) {
   }
 }
 
-function addPrimaryKey(sheet) {
+function addPrimaryKeys(sheet) {
   var [ppbIdx, primaryProBonoRange, primaryProBono] = getColumnCustom(sheet, 'primaryProBono');
   var data = sheet.getDataRange().getValues();
   var primaryKeys = [];

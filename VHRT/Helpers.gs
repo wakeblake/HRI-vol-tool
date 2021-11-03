@@ -108,7 +108,6 @@ function getCommaSepRange(a1range) {
     }
   }
 
-  Logger.log('getCommaSepRange() returned list of ranges: ' + Boolean(a1List.length)).toString();
   return a1List;
 }
 

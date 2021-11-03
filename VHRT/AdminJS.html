@@ -255,17 +255,30 @@
     $('#loader').addClass('d-none');
     $('#working').addClass('d-none');
 
-    if (Object.keys(activeSheetObj).length) {
+    var event = Object.keys(activeSheetObj)[0];
+    if (event) {
+      var [protectedSheetName, reportSheetName] = Object.values(activeSheetObj);
       $('div[name="start"]').removeClass('d-none');
-      $('#sp-presetup').html(activeSheetObj[event][0]);
+      $('#sp-presetup').html(protectedSheetName);
 
-      event == 'update' ? 
-        google.script.run.raiseAlert('Success!', 'Active sheets updated') :
+      if (event == 'update') {
+        resetProcess();
+        google.script.run.raiseAlert('Success!', 'Active sheets updated');
+      } else {
         google.script.run.raiseAlert('Success!', 'Active sheets created');
+      }
 
     } else {
       google.script.run.raiseAlert('Error: There was a problem setting up your active sheets', 'Please contact blake.holleman@gmail.com')
     }
+  }
+
+
+  function updateActiveSheets(element) {
+    google.script.run
+      .withSuccessHandler(selectColumnName(element))
+      .withFailureHandler(error => {alert(error.message);})
+      .updateActiveSheets();
   }
 
 
@@ -276,7 +289,7 @@
     google.script.run
       .withSuccessHandler(resetProcess)
       .withFailureHandler(error => {alert(error.message);})
-      .resetActiveSheets();   // HERE HERE HERE delete active sheet prop //
+      .resetActiveSheets();
   }
 
 

@@ -133,14 +133,24 @@ function setPermissions(activeSheet) {
 
 function setDataValidation(activeSheetId, range) {
   var activeSheet = getSheetById(activeSheetId);
-  var a1List = getCommaSepRange(range.getA1Notation());
+  var a1range = range.getA1Notation();
+  var a1List = getCommaSepRange(a1range);
+  var validations = [];
     
   for (var i=0; i < a1List.length; i++) {
     var cellText = activeSheet.getRange(a1List[i]).getDisplayValue();
     var ruleContainsText = SpreadsheetApp.newDataValidation().requireTextEqualTo(cellText).setAllowInvalid(false).build();
-    cellText ? activeSheet.getRange(a1List[i]).setDataValidation(ruleContainsText) : null;
+    validations.push([ruleContainsText]);
   }
 
+  try {
+    // 2D array for column ranges //
+    activeSheet.getRange(a1range).setDataValidations(validations);
+  } catch (e) {
+    // 1D array for row ranges //
+    activeSheet.getRange(a1range).setDataValidations([validations.flat()]);
+  }
+  
   Logger.log('Set active sheet ' + activeSheet.getSheetName() + ' validations: ' + range.getA1Notation());
 }
 
@@ -163,6 +173,4 @@ function raiseAlert(alertTitle, alertString, buttons='OK') {
   var response = ui.alert(alertTitle, alertString, enums[buttons]);
   return response;
 }
-
-
 

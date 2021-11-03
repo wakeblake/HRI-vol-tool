@@ -101,7 +101,7 @@ function updateAggregateReport([userInputData, pk]) {
 /* RELOADING PAGE */
 
 function reloadPage(request) {
-  return 'https://script.google.com/macros/s/AKfycbwQHxFpty2QGxuMLxOG3iRWfQL9KSv2w64uu8fM7nw/dev' // Change to ScriptApp.getService().getUrl() when deployed //
+  return 'https://script.google.com/macros/s/AKfycbx1YOJavPSshjBlVy9aR36B7zCmuX_DxANGUkIAptrc/dev' // Change to ScriptApp.getService().getUrl() when deployed //
 }
 
 function logUserPageReload() {

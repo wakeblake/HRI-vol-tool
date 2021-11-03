@@ -47,15 +47,17 @@ function finalizeActiveSheets(reportHeaders) {
   var event = 'insert';
 
   var reportSheetId = sheetProperties['reportSheet'];
-  if (reportSheetId) {
-    var reportSheet = getSheetById(reportSheetId);
-    var reportRenamed = 'Report Closed * ' + Utilities.formatDate(new Date(), 'America/Chicago', 'MM-dd-yyyy HH:mm:ss');
+  var reportSheet = getSheetById(reportSheetId);
+  if (reportSheet) {
+    var reportRenamed = 'Report Closed ~ ' + Utilities.formatDate(new Date(), 'America/Chicago', 'MM-dd-yyyy HH:mm:ss');
     reportSheet.setName(reportRenamed);
+    reportSheet.setTabColor(null);
     event = 'update';
   }
   
   // Insert new report summary sheet //
-  reportSheetId = ss.insertSheet('*REPORT SUMMARY*', 1).getSheetId();
+  reportSheetId = ss.insertSheet('*REPORT SUMMARY* ' + Utilities.formatDate(new Date(), 'America/Chicago', 'MM-dd-yyyy HH:mm:ss'), 1).getSheetId();
+  sheetProperties['reportSheet'] = reportSheetId;
   reportSheet = getSheetById(reportSheetId);
   var reportSheetName = reportSheet.getSheetName();
 
@@ -81,11 +83,13 @@ function finalizeActiveSheets(reportHeaders) {
   setDataValidation(protectedSheetId, pkRange);
 
   // Save script properties //
-  sheetProperties['reportSheet'] = reportSheetId;
   PropertiesService.getScriptProperties().setProperty(protectedSheetId, JSON.stringify(sheetProperties));  // can't use variable for key on setProperties() //
   PropertiesService.getScriptProperties().setProperty('reportColumns', JSON.stringify(reportColumns));   // user-facing report cols //
 
   // set active sheets name and tab color //
+  if (/\*ACTIVE\* /.test(protectedSheetName)) {
+    protectedSheetName = protectedSheetName.split('*ACTIVE* ').pop();
+  }
   protectedSheet.setName('*ACTIVE* ' + protectedSheetName);
   protectedSheet.setTabColor('blue');
   reportSheet.setTabColor('blue');
@@ -95,7 +99,9 @@ function finalizeActiveSheets(reportHeaders) {
   isReportSheet ? Logger.log('Saved report sheet: ' + reportSheetId) : Logger.log('Saved report sheet: ' + reportSheetId);
   isReportColumns ? Logger.log('Saved user-facing report columns: ' + JSON.stringify(isReportColumns)) : Logger.log('Saved user-facing report columns: ' + Boolean(isReportColumns));
 
-  return {event: [protectedSheetName, reportSheetName]};
+  var activeSheetObj = {};
+  activeSheetObj[event] = [protectedSheetName, reportSheetName];
+  return activeSheetObj;
 }
 
 
@@ -122,15 +128,11 @@ function resetActiveSheets() {
   // delete or reset properties //
   delete sheetProperties['reportSheet'];
   
-  var scriptProperties = PropertiesService.getScriptProperties().getProperties();
-  var resetProperties = {'protectedSheet': '', protectedSheetId: JSON.stringify(sheetProperties), reportColumns:'[]'};
-  for (key of Object.keys(scriptProperties)) {
-    if (Object.keys(resetProperties).includes(key)) {
-      PropertiesService.getScriptProperties().setProperty(key, resetProperties[key]);
-    }
-  }
+  PropertiesService.getScriptProperties().setProperty('protectedSheet', '');
+  PropertiesService.getScriptProperties().setProperty(protectedSheetId, JSON.stringify(sheetProperties));
+  PropertiesService.getScriptProperties().setProperty('reportColumns', '[]');
   
-  var isReset = !(PropertiesService.getScriptProperties().getProperty(protectedSheetId)['reportSheet'] && PropertiesService.getScriptProperties().getProperty('protectedSheet'));
+  var isReset = !(JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId))['reportSheet'] && PropertiesService.getScriptProperties().getProperty('protectedSheet'));
   Logger.log('Active sheets reset: ' + isReset.toString());
   
   // added to handle user CTRL-Z on sheet deletion //  NEED THIS?
@@ -144,4 +146,18 @@ function resetActiveSheets() {
 }
 
 
+function updateActiveSheets() {
+  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
+  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId));
+  var protectedSheet = getSheetById(protectedSheetId);
+  var protectedSheetName = protectedSheet.getSheetName();
+  protectedSheet.getDataRange().clearDataValidations();  
 
+  var reportSheetId = sheetProperties['reportSheet'];
+  var reportSheet = getSheetById(reportSheetId);
+  if (reportSheet) {
+    reportSheet.getDataRange().clearDataValidations();
+  }
+
+  Logger.log('Active sheets updated');
+}

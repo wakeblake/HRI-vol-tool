@@ -99,6 +99,21 @@ function onChangeInstallable(e) {
       }
     }
   }
+  
+  if (['REMOVE_ROW','REMOVE_COLUMN','INSERT_ROW','INSERT_COLUMN'].includes(e.changeType)) {
+    Logger.log(JSON.stringify(e));
+    Logger.log(e.changeType);
+    var sheetId = SpreadsheetApp.getActiveSheet().getSheetId().toString();
+    var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
+    var reportSheetId = PropertiesService.getScriptProperties().getProperty(protectedSheetId) ? 
+      JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId))['reportSheet'] : 
+      null;
+
+    (sheetId == protectedSheetId) || (sheetId == reportSheetId) ? 
+      raiseAlert('Warning!', 'Inserting or deleting rows or columns on an active sheet may create downstream errors.  Please CTRL-Z to undo these changes.') :
+      null;
+  }
+  
 }
 
 

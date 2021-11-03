@@ -15,7 +15,7 @@ function formatProtectedSheet() {
   sortData(uploadSheet, 'primaryProBono');
 
   // Create primary key and exceptions object //
-  addPrimaryKey(uploadSheet);
+  addPrimaryKeys(uploadSheet);
   setExceptionsProperty(event='upload', type='email');
 
   // Save sheet properties //
@@ -51,9 +51,9 @@ function validateData() {
   
   // Check email column formatting //
   var [peIdx, peRange, primaryEmails] = getColumnCustom(uploadSheet, 'primaryEmail');
-  var [meIdx, meRange, managerEmails] = getColumnCustom(uploadSheet, 'managerEmail');
+  //var [meIdx, meRange, managerEmails] = getColumnCustom(uploadSheet, 'managerEmail');     // comment out unless manager emails set on upload //
   isInvalidCell(sheetId, peRange.getA1Notation(), 'upload');
-  isInvalidCell(sheetId, meRange.getA1Notation(), 'upload');
+  //isInvalidCell(sheetId, meRange.getA1Notation(), 'upload');
 
   Logger.log('Finished validating uploaded sheet ' + sheetId);
   return true;

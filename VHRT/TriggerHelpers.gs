@@ -8,6 +8,7 @@ function isInvalidCell(sheetId=PropertiesService.getScriptProperties().getProper
 
   // check for and highlight invalid emails //
 
+  var noErrors = [];
   var displayErrors = {};
   var headers = sheet.getDataRange().getValues()[0];
   var email;
@@ -21,11 +22,11 @@ function isInvalidCell(sheetId=PropertiesService.getScriptProperties().getProper
       var managerEmail = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId))['managerEmail'];
       email = (sheet.getRange(a1).getColumn() == headers.indexOf(primaryEmail) + 1) || 
               (sheet.getRange(a1).getColumn() == headers.indexOf(managerEmail) + 1) ? 
-              sheet.getRange(a1).getValue() : null;
+              sheet.getRange(a1).getValue() : 'NA';
     }
 
     // handles upload events - assumes data type email //
-    if (!email) {
+    if (email == 'NA') {
       continue;
 
     } else if (email && exceptions['email'].includes(email)) {
@@ -39,20 +40,32 @@ function isInvalidCell(sheetId=PropertiesService.getScriptProperties().getProper
       inputCell.setValue(email);
 
       if(!isEmail.getValue()) {
+
+        /* TODO clean this up 
         var lastRow = loggerSheet.getLastRow();
         var insertRange = loggerSheet.getRange(lastRow + 1, 1, 1, 4);
         var now = Utilities.formatDate(new Date(), 'America/Chicago', 'yyyy-MM-dd HH:mm:ss');
         loggerSheet.getRange(insertRange.getA1Notation()).setValues([[now, email, isEmail.getDisplayValue(), event]]);
+        */
 
-        displayErrors[a1] = email; 
-        sheet.getRange(a1).setBackground('#FFB6C1');
+        email ? displayErrors[a1] = email : displayErrors[a1] = '{NULL}';
+
       } else {
-        sheet.getRange(a1).setBackground('#FFFFFF');
+        noErrors.push(a1);
       }
     }
   }
+  
+  // (un)highlight errors //
+  if (Object.keys(displayErrors).length) {
+    sheet.getRangeList(Object.keys(displayErrors)).setBackground('#FFB6C1');
+  }
+  
+  if (noErrors.length) {
+    sheet.getRangeList(noErrors).setBackground('#FFFFFF');
+  }
 
-  // raise alert and save exceptions on user direction //
+  // raise alert for errors and save exceptions on user direction //
 
   if (Object.keys(displayErrors).length) {
     var errors = Object.values(displayErrors).join(', ');
@@ -67,11 +80,14 @@ function isInvalidCell(sheetId=PropertiesService.getScriptProperties().getProper
     
     if (response == ui.Button.CANCEL) {
       Object.entries(displayErrors).forEach(e => {
-        exceptions['email'].push(e[1]);
-        sheet.getRange(e[0]).setBackground('#FFFFFF');
+        if (!(e[1] == '{NULL}')) {
+          exceptions['email'].push(e[1]);
+          sheet.getRange(e[0]).setBackground('#FFFFFF');
+        }
       })
       PropertiesService.getScriptProperties().setProperty('exceptions', JSON.stringify(exceptions));
     }
   }
 }
+
 
