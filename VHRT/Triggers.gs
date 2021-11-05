@@ -12,7 +12,7 @@ function onOpen(e) {
   var adminUserExists = PropertiesService.getScriptProperties().getProperty('adminUser');
   var superUserExists = PropertiesService.getScriptProperties().getProperty('superUser');
   if ( !(adminUserExists && superUserExists) ) {
-    var adminUser = SpreadsheetApp.getActiveSpreadsheet().getOwner().getEmail()  // THIS SHOULD BE LAYNE //
+    var adminUser = 'lfaulkner@hrionline.org'; //SpreadsheetApp.getActiveSpreadsheet().getOwner().getEmail()  // THIS SHOULD BE LAYNE //
     var superUser = 'blake.holleman@gmail.com';  // CAN'T BE AN ALIAS ... can only owner access apps script? //
     PropertiesService.getScriptProperties().setProperties( {'adminUser': adminUser, 'superUser': superUser});
   }
@@ -22,6 +22,7 @@ function onOpen(e) {
     PropertiesService.getScriptProperties().setProperty('exceptions', JSON.stringify({}));
   }
 
+  // TODO deprecate this? //
   PropertiesService.getScriptProperties().setProperty('adminLoggerUrl', 'https://docs.google.com/spreadsheets/d/1LCiLZ4PO7BC2lFVO0m_lvEncqOqpJKdScwyKpWF9-qo/edit#gid=0');
 }
 

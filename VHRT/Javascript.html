@@ -70,10 +70,12 @@ function checkTableValidated() {
 
         // TODO add link to open user's email client //
         'Sorry, your volunteer record was not found. Make sure you\'ve input your email and key code correctly and try again.<br><br>' + 
-        'If the problem persists, please contact <b>lfaulkner@hrionline.org</b>.'
+        'The HRI volunteer administrator has been notified and will contact you shortly if the problem persists.'
       );
       $('#loader').addClass('d-none');
       $('#confirmuser').removeClass('d-none');
+
+      google.script.run.emailOnFailedLogin([email, pk]);
     }
   }
 
@@ -188,6 +190,8 @@ function checkTableValidated() {
       }
       tableData.push(res);
     }
+    
+    google.script.run.emailUserSubmission([tableData, pk]);
     
     google.script.run
       .withSuccessHandler(onSuccessSave)

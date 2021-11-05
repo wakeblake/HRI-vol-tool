@@ -76,11 +76,13 @@ function finalizeActiveSheets(reportHeaders) {
   var reportHeadersRange = reportSheet.getRange(1, 1, 1, reportSheet.getLastColumn());
   var protectedHeadersRange = protectedSheet.getRange(1, 1, 1, protectedSheet.getLastColumn());  
   var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
+  var [caseIdx, caseRange, primaryCases] = getColumnCustom(protectedSheet, 'primaryCase');
   
   setDataValidation(reportSheetId, reportHeadersRange);
   ss.setActiveSheet(protectedSheet);  
   setDataValidation(protectedSheetId, protectedHeadersRange);
   setDataValidation(protectedSheetId, pkRange);
+  setDataValidation(protectedSheetId, caseRange);
 
   // Save script properties //
   PropertiesService.getScriptProperties().setProperty(protectedSheetId, JSON.stringify(sheetProperties));  // can't use variable for key on setProperties() //

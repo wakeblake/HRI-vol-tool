@@ -112,7 +112,59 @@ function getCommaSepRange(a1range) {
 }
 
 
-// General maintenance //
+// General admin maintenance //
+function emailOnFailedLogin([email, pk]) {
+  var adminUser = PropertiesService.getScriptProperties().getProperty('adminUser');
+  var superUser = PropertiesService.getScriptProperties().getProperty('superUser');
+  var now = Utilities.formatDate(new Date(), 'America/Chicago', 'MM-dd-yyyy HH:mm:ss');
+  GmailApp.sendEmail(
+    adminUser, 
+    'Failed User Login', 
+    'Failed user ' + email + ' attempted login with key ' + pk + ' at ' + now + '.', 
+    {from: superUser, replyTo: email}
+  );
+}
+
+function emailUserSubmission([userInputData, pk]) {
+  var adminUser = PropertiesService.getScriptProperties().getProperty('adminUser');
+  var superUser = PropertiesService.getScriptProperties().getProperty('superUser');
+  var now = Utilities.formatDate(new Date(), 'America/Chicago', 'MM-dd-yyyy HH:mm:ss');
+  var reformatDataStr = '';
+  var reportColumns = JSON.parse(PropertiesService.getScriptProperties().getProperty('reportColumns'));
+  var html;
+
+  userInputData.forEach(row => {
+    reformatDataStr = reformatDataStr + '<tr style="border: 1px solid black">';
+    for (var i of row) {
+      reformatDataStr = reformatDataStr + '<td style="border: 1px solid black">' + i + '</td>';
+    }
+    reformatDataStr = reformatDataStr + '</tr>';
+  });
+
+  reportColumns = reportColumns.map( c => '<th style="border: 1px solid black">' + c + '</th>');
+  reportColumns = reportColumns.join('');
+
+  html = 
+    '<p>' + 'Volunteer ' + pk + ' reported the following at ' + now + ':</p><br>' +
+    '<table style="border: 1px solid black">' + 
+      '<thead style="border: 1px solid black">' + 
+        '<tr style="border: 1px solid black">' + 
+          reportColumns + 
+        '</tr>' + 
+      '</thead>' + 
+      '<tbody>' +
+        reformatDataStr + 
+      '</tbody>' + 
+    '</table>'
+
+  GmailApp.sendEmail(
+    adminUser, 
+    'Volunteer Has Reported Hours', 
+    '',
+    {from: superUser,htmlBody: html}
+  );
+}
+
 function deleteTempProperties() {
   PropertiesService.getScriptProperties().deleteProperty('managerEmailIdx');
   PropertiesService.getScriptProperties().deleteProperty('casePKs');
