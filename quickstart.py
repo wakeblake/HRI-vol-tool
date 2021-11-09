@@ -88,7 +88,7 @@ def save_script(response, dir_path):
     chdir(curdir)
 
     
-def scripts_from_github(repo='wakeblake/HRI-vol-tool', file_or_dir='VHRT'):
+def scripts_from_github(repo, file_or_dir):
     from github import Github
     import os
     import json
@@ -149,6 +149,7 @@ def create_script(creds, files, title):
     
     try:  
         # Create script
+        # Must set up installable triggers separately
         script = service.projects().create(body=script).execute()
         scriptId = script.get('scriptId')
         print('Script Id: {}'.format(scriptId))
@@ -160,28 +161,4 @@ def create_script(creds, files, title):
     except errors.HttpError as error:
         print(error.content)
     
-
-
-# In[10]:
-
-
-creds = oauth2_google()
-
-
-# In[458]:
-
-
-files = scripts_from_github()
-
-
-# In[483]:
-
-
-create_script(creds, files, 'Test CB Script')
-
-
-# In[ ]:
-
-
-
 
