@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[51]:
+# In[482]:
 
 
-def oauth2Google(): 
+def oauth2_google(): 
     """Creates authorization credentials for downstream functions"""
     from google_auth_oauthlib.flow import InstalledAppFlow
     from google.auth.transport.requests import Request
@@ -39,7 +39,7 @@ def oauth2Google():
     return creds
 
 
-def getScript(creds, scriptId):
+def get_script(creds, scriptId):
     """Calls the Apps Script API and returns script object response """
     from googleapiclient import errors
     from googleapiclient.discovery import build
@@ -57,7 +57,7 @@ def getScript(creds, scriptId):
         print(error.content)
 
     
-def saveScript(response, dir_path):
+def save_script(response, dir_path):
     from os import getcwd as cwd
     from os import chdir
     import sys 
@@ -86,21 +86,46 @@ def saveScript(response, dir_path):
         print('Saved {} to {}'.format(fname, cwd()))
     
     chdir(curdir)
-    
 
-def createScript(creds, title):
+    
+def scripts_from_github(repo='wakeblake/HRI-vol-tool', file_or_dir='VHRT'):
+    from github import Github
+    import os
+    import json
+
+    fname = {'json':'JSON', 'gs':'SERVER_JS', 'html':'HTML'}
+
+    # Build github api request
+    token = os.getenv('GITHUB_TOKEN')
+    g = Github(token)
+    repo = g.get_repo(repo)
+    files = repo.get_contents(file_or_dir)
+    files = list(
+                map(
+                    lambda f: {
+                        "name":f.name.split('.')[0], 
+                        "source":f.decoded_content.decode(), 
+                        "type":fname[f.name.split('.')[1]]
+                    }, 
+                    files
+                )
+            )
+    return files
+
+
+def create_script(creds, files, title):
     """Calls the Apps Script API and creates container-bound script"""
     from googleapiclient import errors
     from googleapiclient.discovery import build
     import json
-
+    
+    # Build Google sheets request
     spreadsheet = {
         'properties': {
             'title': title
         }
     }
     
-    # Build request
     service = build('sheets', 'v4', credentials=creds)
     
     try:
@@ -114,19 +139,22 @@ def createScript(creds, title):
     except errors.HttpError as error:
         print(error.content)
     
+    # Build Google scripts request
     script = {
         'title': title,
         'parentId': spreadsheetId
     }
 
-    # Build request
     service = build('script', 'v1', credentials=creds)
     
     try:  
         # Create script
-        response = service.projects().create(body=script).execute()
-        print('Script Id: {}'.format(response.get('scriptId')))
-        if spreadsheetId == response.get('parentId'):
+        script = service.projects().create(body=script).execute()
+        scriptId = script.get('scriptId')
+        print('Script Id: {}'.format(scriptId))
+        script = service.projects().updateContent(scriptId=scriptId, body={'files': files, 'scriptId':scriptId}).execute()
+        scriptParentId = service.projects().get(scriptId=scriptId, fields='parentId').execute()
+        if spreadsheetId == scriptParentId['parentId']:
             print('Successfully created containter-bound script')
         service.close()
     except errors.HttpError as error:
@@ -134,16 +162,22 @@ def createScript(creds, title):
     
 
 
-# In[20]:
+# In[10]:
 
 
-creds = oauth2Google()
+creds = oauth2_google()
 
 
-# In[52]:
+# In[458]:
 
 
-createScript(creds, 'Test CB Script')
+files = scripts_from_github()
+
+
+# In[483]:
+
+
+create_script(creds, files, 'Test CB Script')
 
 
 # In[ ]:
