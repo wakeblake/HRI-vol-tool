@@ -149,7 +149,7 @@ function checkTableValidated() {
             id: 'd-' + i + j,
             name: 'd-' + i + j,
             value: (tableCols[j] == Object.keys(firmNameDict)[0]) ? firmNameDict[tableCols[j]] : '',
-            pattern: (tableCols[j].startsWith('Hours') || tableCols[j].startsWith('Billing')) ? '[0-9]+\.{0,1}(?=[0-9]+)[0-9]{0,2}' : '[\\w\\W]+',
+            pattern: (tableCols[j].startsWith('Hours') || tableCols[j].startsWith('Billing')) ? '[0-9]+\.[0-9]{1,2}$|^[0-9]+$' : '[\\w\\W]+',
             required: 'required'
           })
         ).append(

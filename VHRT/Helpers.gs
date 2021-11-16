@@ -165,6 +165,7 @@ function emailUserSubmission([userInputData, pk]) {
   );
 }
 
+
 function deleteTempProperties() {
   PropertiesService.getScriptProperties().deleteProperty('managerEmailIdx');
   PropertiesService.getScriptProperties().deleteProperty('casePKs');

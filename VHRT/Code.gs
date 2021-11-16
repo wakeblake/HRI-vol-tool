@@ -28,9 +28,10 @@ function verifyRegisteredVolunteer([pk, email]) {
     var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
 
     if (primaryKeys.includes(pk)) {
-      if (primaryEmails.includes(email)) {
+      var i = primaryKeys.indexOf(pk);
+      if (primaryEmails[i] == email) {
         isVerified = true;
-      } else if (managerEmails.includes(email)) {
+      } else if (managerEmails[i] == email) {
         isVerified = true;
         var cacheManagerEmailIdx = getManagerIdx(email);
         PropertiesService.getScriptProperties().setProperty('ManagerEmailIdx', JSON.stringify(cacheManagerEmailIdx));
@@ -38,7 +39,6 @@ function verifyRegisteredVolunteer([pk, email]) {
     }
   }
 
-  Logger.log('User opened protected sheet: ' + protectedSheetId);
   Logger.log(JSON.stringify({'isVerified':isVerified, 'primaryKey':pk, 'email':email}));
   return [isVerified, pk, email];
 }
