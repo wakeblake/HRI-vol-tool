@@ -15,7 +15,7 @@ function buildSetupSideBar() {
   var htmlOutput = HtmlService
     .createTemplateFromFile('Admin')
     .evaluate()
-    .setTitle('Set Up Report Sheet');
+    .setTitle('Activate Sheets for Reporting');
 
   ui.showSidebar(htmlOutput);
 }

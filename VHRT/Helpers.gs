@@ -36,11 +36,9 @@ function setTableProperties(pk) {   // Assumes cases per attorney grouped by att
 
 function getManagerIdx(email){
   var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
-  var sheetProperties = PropertiesService.getScriptProperties().getProperty(protectedSheetId);
   var protectedSheet = getSheetById(protectedSheetId);
 
-  var managerEmailCol = sheetProperties['managerEmail']; 
-  var [meIdx, meRange, managerEmails] = getColumnCustom(protectedSheet, 'managerEmail');
+  var [meIdx, meRange, managerEmails] = getColumnCustom(protectedSheet, 'managerEmail', event='userSubmit');
   var isManagerIdx = [];
   for (var i=0; i < managerEmails.length; i++) {
     if(managerEmails[i] == email) {
