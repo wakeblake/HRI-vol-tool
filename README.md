@@ -2,7 +2,15 @@
 <b>Volunteer Hours Reporting Tool built on Google Apps Script</b>
 
 The Volunteer Hours Reporting Tool was designed to simplify volunteer reporting requirements at a small nonprofit with a large volunteer workforce and single adminsitrator. Built on the free Google Apps Script platform, the tool permits volunteers to submit properly formatted data through an authenticated client-side web app, which is then saved and aggregated on an internal Google tracking spreadsheet.  When the volunteer is authenticated, the web app simplifies the reporting process by loading a template of her data from a central repository "protected" sheet on the tracking spreadsheet.  
-<br>
+<br><br>
+
+<table>
+  <tr>
+    <td><img src="RDMEpics/clientlogin.png"></img></td>
+    <td><img src="RDMEpics/clientlogin2.png"></img></td>
+  </tr>
+</table>
+<br><br>
 
 
 <b>The Tracking Google Spreadsheet</b>
@@ -110,3 +118,5 @@ The Volunteer Hours Reporting Tool facilitates administrator reponsiveness and d
     <td><img src="RDMEpics/email2.png"></img></td>
   </tr>
 </table>
+<br><br>
+
