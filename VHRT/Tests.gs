@@ -6,7 +6,7 @@ const TESTS = [
     dataRetrievalHelpers,
 ] 
 
-
+/*
 function doGet(request) {
   QUnitGS2.init();
 
@@ -21,7 +21,7 @@ function doGet(request) {
 function getResultsFromServer() {
   return QUnitGS2.getResultsFromServer();
 }
-
+*/
 
 function dataRetrievalHelpers() {
   QUnit.module('Data retrieval helpers');
@@ -91,11 +91,6 @@ function endTestReset() {
 }
 
 
-function test() {
-  //PropertiesService.getScriptProperties().setProperty('managerEmail', 'Manager Emails');
+function testBuildHelper() {
   console.log(PropertiesService.getScriptProperties().getProperties());
-  var testSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('HRI_TESTS');
-  var testSheetId = testSheet.getSheetId().toString();
-  console.log(getColumnCustom(testSheetId, 'managerEmail', 'test'))
-
 }
