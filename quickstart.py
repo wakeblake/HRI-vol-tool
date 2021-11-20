@@ -58,6 +58,7 @@ def get_script(creds, scriptId):
 
     
 def save_script(response, dir_path):
+    """Saves script object response as files to local directory"""
     from os import getcwd as cwd
     from os import chdir
     import sys 
@@ -89,6 +90,7 @@ def save_script(response, dir_path):
 
     
 def scripts_from_github(repo, file_or_dir):
+    """Pulls scripts from Github repo"""
     from github import Github
     import os
     import json
