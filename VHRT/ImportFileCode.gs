@@ -1,36 +1,36 @@
 function formatProtectedSheet() {
-  var sheetId = PropertiesService.getScriptProperties().getProperty('lastUploadedSheet');
+  var uploadSheetId = PropertiesService.getScriptProperties().getProperty('lastUploadedSheet');
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var uploadSheet = getSheetById(sheetId);
+  var uploadSheet = getSheetById(uploadSheetId);
 
   // Remove extra space //
   setHeaderRow(uploadSheet);
   deleteExtraColumns(uploadSheet);
-  fillColumn(uploadSheet);
+  fillColumn(uploadSheetId);
   applyFilter(uploadSheet);
   deleteExtraRows(uploadSheet, getFilteredRowRanges(uploadSheet));
 
   // Combine rows by attorney name //
-  combineRowsByProBono(uploadSheet);
+  combineRowsByProBono(uploadSheetId);
   sortData(uploadSheet, 'primaryProBono');
 
   // Create primary key and exceptions object //
-  addPrimaryKeys(uploadSheet);
+  addPrimaryKeys(uploadSheetId);
   setExceptionsProperty(event='upload', type='email');
 
   // Save sheet properties //
   saveSheetProperties();
   
-  Logger.log('Finished formatting uploaded sheet ' + sheetId);
+  Logger.log('Finished formatting uploaded sheet ' + uploadSheetId);
   return true;
 }
 
 function validateData() {
-  var sheetId = PropertiesService.getScriptProperties().getProperty('lastUploadedSheet');
+  var uploadSheetId = PropertiesService.getScriptProperties().getProperty('lastUploadedSheet');
   var uploadSheet = getSheetById(sheetId);
 
   // Check case column formatting //
-  var [caseColIdx, casesRange, cases] = getColumnCustom(uploadSheet, 'primaryCase');
+  var [caseColIdx, casesRange, cases] = getColumnCustom(uploadSheetId, 'primaryCase', event='upload');
   for (var i=0; i < cases.length; i++) {
     var row = i + 2;
     var caseName = cases[i].trim();
@@ -50,8 +50,8 @@ function validateData() {
   }
   
   // Check email column formatting //
-  var [peIdx, peRange, primaryEmails] = getColumnCustom(uploadSheet, 'primaryEmail');
-  //var [meIdx, meRange, managerEmails] = getColumnCustom(uploadSheet, 'managerEmail');     // comment out unless manager emails set on upload //
+  var [peIdx, peRange, primaryEmails] = getColumnCustom(uploadSheetId, 'primaryEmail', event='upload');
+  //var [meIdx, meRange, managerEmails] = getColumnCustom(uploadSheetId, 'managerEmail', event='upload');     // comment out unless manager emails set on upload //
   isInvalidCell(sheetId, peRange.getA1Notation(), 'upload');
   //isInvalidCell(sheetId, meRange.getA1Notation(), 'upload');
 

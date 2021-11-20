@@ -5,10 +5,11 @@ function setTableProperties(pk) {   // Assumes cases per attorney grouped by att
   var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId));
   var managerEmailIdxJSON = PropertiesService.getScriptProperties().getProperty('managerEmailIdx');
 
-  var protectedSheet = getSheetById(protectedSheetId);
-  var [caseNameIdx, caseNameRange, cases] = getColumnCustom(protectedSheet, 'primaryCase');
-  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
+  var [caseNameIdx, caseNameRange, cases] = getColumnCustom(protectedSheetId, 'primaryCase');
+  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheetId, 'primaryKey');
 
+  var protectedSheet = getSheetById(protectedSheetId);
+  
   if (managerEmailIdxJSON) {
     var managerEmailIdx = JSON.parse(managerEmailIdxJSON);
     var caseNames = [];
@@ -34,36 +35,31 @@ function setTableProperties(pk) {   // Assumes cases per attorney grouped by att
   Logger.log('Set table property "casePKs": ' + PropertiesService.getScriptProperties().getProperty('casePKs'));
 }
 
-function getManagerIdx(email){
-  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
-  var protectedSheet = getSheetById(protectedSheetId);
-
-  var [meIdx, meRange, managerEmails] = getColumnCustom(protectedSheet, 'managerEmail', event='userSubmit');
+function getManagerIdx(sheetId, email, event='userSubmit'){
+  var [meIdx, meRange, managerEmails] = getColumnCustom(sheetId, 'managerEmail', event=event);
   var isManagerIdx = [];
   for (var i=0; i < managerEmails.length; i++) {
     if(managerEmails[i] == email) {
       isManagerIdx.push(i+2);
     }
   }
-  Logger.log('User is office manager: ' + JSON.stringify(isManagerIdx));
+  Logger.log('User is office manager');
   return isManagerIdx;
 }
 
-function addFirmNameDict(pk) {
-  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
-  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId));
-  var protectedSheet = getSheetById(protectedSheetId);
+function addFirmObj(sheetId, pk) {
+  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId));
+  var sheet = getSheetById(sheetId);
 
-  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
-  var [primaryFirmIdx ,primaryFirmRange, firms] = getColumnCustom(protectedSheet, 'primaryFirm');
+  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(sheetId, 'primaryKey', event='userSubmit');
+  var [primaryFirmIdx ,primaryFirmRange, firms] = getColumnCustom(sheetId, 'primaryFirm', event='userSubmit');
 
   var rowIdx = primaryKeys.indexOf(pk);
   var primaryFirmCol = sheetProperties['primaryFirm'];
-  var firmNameDict = {};
-  firmNameDict[primaryFirmCol] = protectedSheet.getRange(rowIdx+2, primaryFirmIdx+1).getValue();
+  var firmObj = {};
+  firmObj[primaryFirmCol] = sheet.getRange(rowIdx+2, primaryFirmIdx+1).getValue();
 
-  Logger.log('Added firmNameDict: ' + JSON.stringify(firmNameDict));
-  return firmNameDict;
+  return firmObj;
 }
 
 

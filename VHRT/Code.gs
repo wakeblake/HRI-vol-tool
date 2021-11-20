@@ -23,9 +23,9 @@ function verifyRegisteredVolunteer([pk, email]) {
     var protectedData = protectedSheet.getDataRange().getDisplayValues();
     var headers = protectedData[0];
 
-    var [meIdx, meRange, managerEmails] = getColumnCustom(protectedSheet, 'managerEmail');
-    var [peIdx, peRange, primaryEmails] = getColumnCustom(protectedSheet, 'primaryEmail');
-    var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
+    var [meIdx, meRange, managerEmails] = getColumnCustom(protectedSheetId, 'managerEmail', event='userSubmit');
+    var [peIdx, peRange, primaryEmails] = getColumnCustom(protectedSheetId, 'primaryEmail', event='userSubmit');
+    var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheetId, 'primaryKey', event='userSubmit');
 
     if (primaryKeys.includes(pk)) {
       var i = primaryKeys.indexOf(pk);
@@ -33,7 +33,7 @@ function verifyRegisteredVolunteer([pk, email]) {
         isVerified = true;
       } else if (managerEmails[i] == email) {
         isVerified = true;
-        var cacheManagerEmailIdx = getManagerIdx(email);
+        var cacheManagerEmailIdx = getManagerIdx(protectedSheetId, email);
         PropertiesService.getScriptProperties().setProperty('ManagerEmailIdx', JSON.stringify(cacheManagerEmailIdx));
       }
     }
@@ -44,14 +44,14 @@ function verifyRegisteredVolunteer([pk, email]) {
 }
 
 function getTableData(pk) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
   var tableCols = JSON.parse(PropertiesService.getScriptProperties().getProperty('reportColumns'));
   
   setTableProperties(pk);
   var caseNames = JSON.parse(PropertiesService.getScriptProperties().getProperty('caseNames'));
-  var firmNameDict = addFirmNameDict(pk);
+  var firmObj = addFirmObj(protectedSheetId, pk);
 
-  return [tableCols, caseNames, firmNameDict, pk];
+  return [tableCols, caseNames, firmObj, pk];
 }
 
 

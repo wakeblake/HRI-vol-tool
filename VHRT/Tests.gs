@@ -4,10 +4,9 @@ const QUnit = QUnitGS2.QUnit;
 const TESTS = [
     userAuthentication,
     dataRetrievalHelpers,
-
 ] 
 
-/*
+
 function doGet(request) {
   QUnitGS2.init();
 
@@ -22,40 +21,46 @@ function doGet(request) {
 function getResultsFromServer() {
   return QUnitGS2.getResultsFromServer();
 }
-*/
+
 
 function dataRetrievalHelpers() {
   QUnit.module('Data retrieval helpers');
 
   var sheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
-  var meColName = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId))['managerEmail'];
+  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId))
   var testSheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet(0);
+  var testSheetId = testSheet.getSheetId().toString();
+  PropertiesService.getScriptProperties().setProperty(testSheetId, JSON.stringify(sheetProperties))
   testSheet.setName('HRI_TESTS');
 
+  var testProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(testSheetId));
   var testData = [];
-  testData.push(['Col1', meColName, 'Col3', 'Col4', 'Col5']);
+  testData.push([testProperties['primaryKey'], testProperties['managerEmail'], 'Col3', testProperties['primaryCase'], testProperties['primaryFirm']]);
   for (var i=1; i < 11; i++) {
     testData.push([i*1, i*2, i*3, i*4, i*5]);
   }
   testSheet.getRange(1,1,11,5).setValues(testData);
   testSheet.getRange(2,2,3,1).setValues([['wakeblake@gmail.com'], ['wakeblake@gmail.com'], ['wakeblake@gmail.com']])
-  PropertiesService.getScriptProperties().setProperty('testColumnName', 'Col4');
 
   QUnit.test('Get column data', assert => {
-    assert.equal(getColumnCustom(testSheet, 'testColumnName'), [3, testSheet.getRange(2, 4, testSheet.getLastRow(), 1), [4, 8, 12, 16, 20, 24, 28, 32, 36, 40]]);
+    assert.deepEqual(getColumnCustom(testSheetId, 'primaryCase', event='test'), [3, testSheet.getRange(2, 4, testSheet.getLastRow(), 1), [4, 8, 12, 16, 20, 24, 28, 32, 36, 40]]);
   })
 
   QUnit.test('Get manager indices', assert => {
-    assert.equal(getManagerIdx('wakeblake@gmail.com'), [2,3,4]);
+    assert.deepEqual(getManagerIdx(testSheetId, 'wakeblake@gmail.com', event='test'), [2,3,4]);
+  })
+
+  QUnit.test('Get firm name from pk', assert => {
+    assert.equal(addFirmObj(testSheetId, 7)[testProperties['primaryFirm']], 35);
   })
 }
 
 
 function userAuthentication() {
   QUnit.module('Authentication (random draws)');
-  var protectedSheet = getSheetById(PropertiesService.getScriptProperties().getProperty('protectedSheet'));
-  var [peIdx, peRange, primaryEmails] = getColumnCustom(protectedSheet, 'primaryEmail', 'test');
-  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey', 'test');
+  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
+  var [peIdx, peRange, primaryEmails] = getColumnCustom(protectedSheetId, 'primaryEmail', 'test');
+  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheetId, 'primaryKey', 'test');
 
   for (var i=0; i < 5; i++) {
     var n = Math.floor(Math.random() * primaryKeys.length);
@@ -81,15 +86,16 @@ function userAuthentication() {
 
 function endTestReset() {
   var testSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('HRI_TESTS');
+  var testSheetId = testSheet.getSheetId().toString();
   SpreadsheetApp.getActiveSpreadsheet().deleteSheet(testSheet);
-  PropertiesService.getScriptProperties().deleteProperty('testColumnName');
 }
 
 
 function test() {
   //PropertiesService.getScriptProperties().setProperty('managerEmail', 'Manager Emails');
-  //console.log(PropertiesService.getScriptProperties().getProperties());
-  console.log(getManagerIdx('wakeblake@gmail.com'));
-  console.log(SpreadsheetApp.getActiveSheet().getSheetName());
-  
+  console.log(PropertiesService.getScriptProperties().getProperties());
+  var testSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('HRI_TESTS');
+  var testSheetId = testSheet.getSheetId().toString();
+  console.log(getColumnCustom(testSheetId, 'managerEmail', 'test'))
+
 }
