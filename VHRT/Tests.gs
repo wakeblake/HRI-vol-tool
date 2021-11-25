@@ -1,13 +1,17 @@
 /* Unit Tests -- Run ONLY when active sheets are set */
 
+// Set up QUnit and run tests //
+
 const QUnit = QUnitGS2.QUnit;
 const TESTS = [
-    userAuthentication,
     dataRetrievalHelpers,
+    userAuthentication,
 ] 
 
-/*
+
 function doGet(request) {
+  QUnit.config.autostart = false;
+
   QUnitGS2.init();
 
   TESTS.forEach((testFunc) => {
@@ -21,7 +25,13 @@ function doGet(request) {
 function getResultsFromServer() {
   return QUnitGS2.getResultsFromServer();
 }
-*/
+
+QUnit.done( details => {
+  endTestReset();
+})
+
+
+// QUnit Modules //
 
 function dataRetrievalHelpers() {
   QUnit.module('Data retrieval helpers');
@@ -42,6 +52,10 @@ function dataRetrievalHelpers() {
   testSheet.getRange(1,1,11,5).setValues(testData);
   testSheet.getRange(2,2,3,1).setValues([['wakeblake@gmail.com'], ['wakeblake@gmail.com'], ['wakeblake@gmail.com']])
 
+  QUnit.test('Get sheet by ID', assert => {
+    assert.deepEqual(getSheetById(testSheet.getSheetId()), testSheet);
+  })
+
   QUnit.test('Get column data', assert => {
     assert.deepEqual(getColumnCustom(testSheetId, 'primaryCase', event='test'), [3, testSheet.getRange(2, 4, testSheet.getLastRow(), 1), [4, 8, 12, 16, 20, 24, 28, 32, 36, 40]]);
   })
@@ -54,7 +68,6 @@ function dataRetrievalHelpers() {
     assert.equal(addFirmObj(testSheetId, 7)[testProperties['primaryFirm']], 35);
   })
 }
-
 
 function userAuthentication() {
   QUnit.module('Authentication (random draws)');
@@ -84,12 +97,13 @@ function userAuthentication() {
 }
 
 
+// Test helpers //
+
 function endTestReset() {
   var testSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('HRI_TESTS');
   var testSheetId = testSheet.getSheetId().toString();
   SpreadsheetApp.getActiveSpreadsheet().deleteSheet(testSheet);
 }
-
 
 function testBuildHelper() {
   console.log(PropertiesService.getScriptProperties().getProperties());
