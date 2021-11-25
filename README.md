@@ -12,6 +12,8 @@ The Volunteer Hours Reporting Tool was designed to simplify volunteer reporting 
 </table>
 <br><br>
 
+<i><span style="color:blue">Note: Users authenticate using their email and a unique, nine-digit primary key that is generated when a volunteer data set is imported through the "Import a File" add-on menu item (see "Importing Volunteer Data" section).</i></span>
+<br><br>
 
 <b>The Tracking Google Spreadsheet</b>
 
@@ -46,7 +48,7 @@ Volunteer data is imported as a .csv file using the "Import a File" menu item.  
 </table>
 <br><br>
 
-When creating a new uploaded sheet, the tool automatically assigns each volunteer a unique, nine-digit, personal primary key that is used during client-side login for user authentication purposes. This key is bound to the uploaded sheet and not the individual volunteer, such that the same volunteer may have a different primary key depending on which sheet set as the active reporting sheet (<i>see "Active Reporting Sheets" section</i>).  
+When creating a new uploaded sheet, the tool automatically assigns each volunteer a unique, nine-digit primary key that is used during client-side login for user authentication purposes. This key is bound to the uploaded sheet and not the individual volunteer, such that the same volunteer may have a different primary key depending on which sheet set as the active reporting sheet (<i>see "Active Reporting Sheets" section</i>).  
 <br>
 
 <table>
