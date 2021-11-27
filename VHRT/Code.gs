@@ -34,7 +34,7 @@ function verifyRegisteredVolunteer([pk, email]) {
       } else if (managerEmails[i] == email) {
         isVerified = true;
         var cacheManagerEmailIdx = getManagerIdx(protectedSheetId, email);
-        PropertiesService.getScriptProperties().setProperty('ManagerEmailIdx', JSON.stringify(cacheManagerEmailIdx));
+        PropertiesService.getScriptProperties().setProperty('managerEmailIdx', JSON.stringify(cacheManagerEmailIdx));
       }
     }
   }
@@ -47,7 +47,7 @@ function getTableData(pk) {
   var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
   var tableCols = JSON.parse(PropertiesService.getScriptProperties().getProperty('reportColumns'));
   
-  setTableProperties(pk);
+  setTableProperties(protectedSheetId, pk);
   var caseNames = JSON.parse(PropertiesService.getScriptProperties().getProperty('caseNames'));
   var firmObj = addFirmObj(protectedSheetId, pk);
 

@@ -1,14 +1,13 @@
 /* Data retreival helpers */
 
-function setTableProperties(pk) {   // Assumes cases per attorney grouped by attorney in same cell in sheet //
-  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
-  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId));
+function setTableProperties(sheetId, pk) {   // Assumes cases per attorney grouped by attorney in same cell in sheet //
+  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId));
   var managerEmailIdxJSON = PropertiesService.getScriptProperties().getProperty('managerEmailIdx');
 
-  var [caseNameIdx, caseNameRange, cases] = getColumnCustom(protectedSheetId, 'primaryCase');
-  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheetId, 'primaryKey');
+  var [caseNameIdx, caseNameRange, cases] = getColumnCustom(sheetId, 'primaryCase');
+  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(sheetId, 'primaryKey');
 
-  var protectedSheet = getSheetById(protectedSheetId);
+  var protectedSheet = getSheetById(sheetId);
   
   if (managerEmailIdxJSON) {
     var managerEmailIdx = JSON.parse(managerEmailIdxJSON);
