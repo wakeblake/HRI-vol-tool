@@ -43,13 +43,12 @@ function verifyRegisteredVolunteer([pk, email]) {
   return [isVerified, pk, email];
 }
 
-function getTableData(pk) {
-  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
+function getTableData(pk, sheetId=PropertiesService.getScriptProperties().getProperty('protectedSheet')) {
   var tableCols = JSON.parse(PropertiesService.getScriptProperties().getProperty('reportColumns'));
   
-  setTableProperties(protectedSheetId, pk);
+  setTableProperties(sheetId, pk);
   var caseNames = JSON.parse(PropertiesService.getScriptProperties().getProperty('caseNames'));
-  var firmObj = addFirmObj(protectedSheetId, pk);
+  var firmObj = addFirmObj(sheetId, pk);
 
   return [tableCols, caseNames, firmObj, pk];
 }

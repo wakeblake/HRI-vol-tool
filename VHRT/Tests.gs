@@ -10,7 +10,7 @@ const TESTS = [
 ] 
 
 
-// Run tests - COMMENT OUT TO MAKE WEB APP LIVE //
+// Run tests - COMMENT OUT doGet() TO MAKE WEB APP LIVE //
 /*
 function doGet(request) {
   setUpTestData();
@@ -79,7 +79,14 @@ function dataRetrievalHelpers() {
   })
 
   QUnit.test('Get column data', assert => {
-    assert.deepEqual(getColumnCustom(testSheetId, 'primaryCase', event='test'), [3, testSheet.getRange(2, 4, testSheet.getLastRow(), 1), ['a4','a8','a12','a16','a20','a24','a28','a32','a36','a40']]);
+    assert.deepEqual(
+      getColumnCustom(testSheetId, 'primaryCase', event='test'), 
+      [3, testSheet.getRange(2, 4, testSheet.getLastRow(), 1), ['a4','a8','a12','a16','a20','a24','a28','a32','a36','a40']]
+    );
+  })
+
+  QUnit.test('Get comma separated range of cells in A1Notation', assert => {
+    assert.deepEqual(getCommaSepRange('B4:D10'), ['B4','C4','D4','B5','C5','D5','B6','C6','D6','B7','C7','D7','B8','C8','D8','B9','C9','D9','B10','C10','D10']);
   })
 
   QUnit.test('Get manager indices', assert => {
@@ -149,6 +156,14 @@ function dataRetrieval() {
     assert.deepEqual(casePKs, '');
   })
 
+  QUnit.test('Get table data for attorney user', assert => {
+    var tableCols = JSON.parse(PropertiesService.getScriptProperties().getProperty('reportColumns'));
+    assert.deepEqual(
+      getTableData('a5', sheetId=testSheetId), 
+      [tableCols, ['a20'], {'Organization Name':'a25'}, 'a5']
+    );
+  })
+
   QUnit.test('Set table properties for manager user', assert => {
     PropertiesService.getScriptProperties().setProperty('managerEmailIdx', JSON.stringify([2,3,4]));
     var pk = 'a3';
@@ -161,6 +176,14 @@ function dataRetrieval() {
                   PropertiesService.getScriptProperties().getProperty('casePKs');
     assert.deepEqual(caseNames, ['a4','a8','a12']);
     assert.deepEqual(casePKs, ['a1','a2','a3']);
+  })
+
+  QUnit.test('Get table data for manager user', assert => {
+    var tableCols = JSON.parse(PropertiesService.getScriptProperties().getProperty('reportColumns'));
+    assert.deepEqual(
+      getTableData('a2', sheetId=testSheetId), 
+      [tableCols, ['a4','a8','a12'], {'Organization Name':'a10'}, 'a2']
+    );
   })
 }
 
@@ -177,9 +200,7 @@ function endTestReset() {
 }
 
 function testBuildHelper() {
-  var testSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('HRI_TESTS');
-  var testSheetId = testSheet.getSheetId().toString();
-  //setTableProperties(testSheetId, 9);
-  PropertiesService.getScriptProperties().deleteProperty('ManagerEmailIdx');
+  //var testSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('HRI_TESTS');
+  //var testSheetId = testSheet.getSheetId().toString();
   console.log(PropertiesService.getScriptProperties().getProperties());
 }

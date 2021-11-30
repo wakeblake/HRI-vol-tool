@@ -4,7 +4,7 @@ function isInvalidCell(sheetId=PropertiesService.getScriptProperties().getProper
   var adminLoggerUrl = PropertiesService.getScriptProperties().getProperty('adminLoggerUrl');
   var exceptions = JSON.parse(PropertiesService.getScriptProperties().getProperty('exceptions'));
   var sheet = getSheetById(sheetId);
-  var a1List = getCommaSepRange(a1range);
+  var a1List = getCommaSepRange(sheetId, a1range);
 
   // check for and highlight invalid emails //
 

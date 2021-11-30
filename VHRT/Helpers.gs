@@ -61,27 +61,6 @@ function addFirmObj(sheetId, pk) {
   return firmObj;
 }
 
-
-/* Logging user inputs helpers */
-
-function checkReportSheetUpdated(reportSheet, userInputData) {
-  var isUpdated = true;
-  var reportData = reportSheet.getDataRange().getDisplayValues();
-  for (var i=0; i < userInputData.length; i++) {
-    for(var j = reportData.length-1; j > 0; j--) {
-      if (JSON.stringify(userInputData[i]) == JSON.stringify(reportData[j])) {
-        break;
-      }
-    }
-    if (isUpdated == true) {
-      continue
-    };
-    isUpdated = false;
-    break
-  }
-  return isUpdated;
-}
-
 function getCommaSepRange(a1range) {
   var alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var re = /([A-Z]+)(\d+)/;
@@ -102,6 +81,27 @@ function getCommaSepRange(a1range) {
   }
 
   return a1List;
+}
+
+
+/* Logging user inputs helpers */
+
+function checkReportSheetUpdated(reportSheet, userInputData) {
+  var isUpdated = true;
+  var reportData = reportSheet.getDataRange().getDisplayValues();
+  for (var i=0; i < userInputData.length; i++) {
+    for(var j = reportData.length-1; j > 0; j--) {
+      if (JSON.stringify(userInputData[i]) == JSON.stringify(reportData[j])) {
+        break;
+      }
+    }
+    if (isUpdated == true) {
+      continue
+    };
+    isUpdated = false;
+    break
+  }
+  return isUpdated;
 }
 
 
