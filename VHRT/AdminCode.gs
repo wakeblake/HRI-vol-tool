@@ -75,8 +75,8 @@ function finalizeActiveSheets(reportHeaders) {
   var reportColumns = reorderCols(reorderFirst, reportHeaders);
   var reportHeadersRange = reportSheet.getRange(1, 1, 1, reportSheet.getLastColumn());
   var protectedHeadersRange = protectedSheet.getRange(1, 1, 1, protectedSheet.getLastColumn());  
-  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheetId, 'primaryKey', event='activateSheet');
-  var [caseIdx, caseRange, primaryCases] = getColumnCustom(protectedSheetId, 'primaryCase', event='activateSheet');
+  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
+  var [caseIdx, caseRange, primaryCases] = getColumnCustom(protectedSheet, 'primaryCase');
   
   setDataValidation(reportSheetId, reportHeadersRange);
   ss.setActiveSheet(protectedSheet);  
@@ -163,3 +163,4 @@ function updateActiveSheets() {
 
   Logger.log('Active sheets updated');
 }
+

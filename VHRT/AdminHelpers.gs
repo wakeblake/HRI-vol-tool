@@ -70,10 +70,13 @@ function createRadioButtons(elementId) {
 
   } else {
     var dateRangeString = getDateRange(); 
-    var autoReportCols = ['Attorney', 'Hours spent on case between ' + dateRangeString, 'Billing Rate (hr)'];
+    var autoReportCols = [sheetProperties['primaryCase'], sheetProperties['primaryFirm'], 'Attorney(s)', 'Hours spent on case between ' + dateRangeString, 'Billing Rate (hr)'];
     var manReportCols = function() {
       var headers = getSheetById(sheetId).getDataRange().getValues()[0];
       headers.splice(headers.indexOf(sheetProperties['primaryKey']), 1);
+      headers.splice(headers.indexOf(sheetProperties['primaryCase']), 1);
+      headers.splice(headers.indexOf(sheetProperties['primaryFirm']), 1);
+      headers.splice(headers.indexOf(sheetProperties['primaryProBono']), 1);
       return headers;
     }
 
@@ -107,13 +110,13 @@ function reorderCols(colsFirst, colArr) {
   var count = 0;
   for (var col of colsFirst) {
     val = sheetProperties[col];
-    if (val) {
+    if (val && colArr.includes(val)) {
       var colIdx = colArr.indexOf(val);
       colArr.splice(colIdx, 1);
       colArr.splice(count, 0, val);
       count += 1;
     } else {
-      Logger.log(col + ' is not a set script property');
+      Logger.log(col + ' is either not a set script property or user-selected reporting column');
     }
   }
   return colArr;
@@ -173,4 +176,5 @@ function raiseAlert(alertTitle, alertString, buttons='OK') {
   var response = ui.alert(alertTitle, alertString, enums[buttons]);
   return response;
 }
+
 

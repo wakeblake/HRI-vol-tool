@@ -61,15 +61,13 @@ function setExceptionsProperty(event, type) {
 
 /* Formatting helpers */
 
-function getColumnCustom(sheetId, colNamePropertyKey, event) {
+function getColumnCustom(sheet, colNamePropertyKey, event='upload') {
   if (event == 'upload') {
     var colName = PropertiesService.getScriptProperties().getProperty(colNamePropertyKey);
   } else {
-    var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId));
+    var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheet.getSheetId()));
     var colName = sheetProperties[colNamePropertyKey];
   }
-
-  var sheet = getSheetById(sheetId);
   var data = sheet.getDataRange().getValues();
   var colIdx = data[0].indexOf(colName);
   var colRange = sheet.getRange(2, colIdx + 1, data.length-1,1);  // column range excluding header //
@@ -77,7 +75,7 @@ function getColumnCustom(sheetId, colNamePropertyKey, event) {
   return [colIdx, colRange, colData];
 }
 
-function applyFilter(sheet) {
+function applyFilter(sheet=getSheetById(PropertiesService.getScriptProperties().getProperty('lastUploadedSheet'))) {
   var primaryCase = PropertiesService.getScriptProperties().getProperty('primaryCase');
   var primaryProBono = PropertiesService.getScriptProperties().getProperty('primaryProBono');
   var cols = sheet.getDataRange().getValues()[0];
@@ -118,8 +116,8 @@ function getFilteredRowRanges(sheet) {
   }
 }
 
-function fillColumn(sheetId) {
-  var [ppbIdx, primaryProBonoRange, primaryProBono] = getColumnCustom(sheetId, 'primaryProBono', event='upload');
+function fillColumn(sheet) {
+  var [ppbIdx, primaryProBonoRange, primaryProBono] = getColumnCustom(sheet, 'primaryProBono');
   var fillCol = [];
   var name = primaryProBono[0];
   primaryProBono.forEach( row => {
@@ -168,10 +166,9 @@ function deleteExtraColumns(sheet) {
   deleteColNums.reverse().forEach( (i) => sheet.deleteColumn(i));  // must delete in reverse order to preserve column index //
 }
 
-function combineRowsByProBono(sheetId) {
-  var sheet = getSheetById(sheetId);
-  var [caseColIdx, caseRange, cases] = getColumnCustom(sheetId, 'primaryCase', event='upload');
-  var [ppbIdx, primaryProBonoRange, primaryProBono] = getColumnCustom(sheetId, 'primaryProBono', event='upload');
+function combineRowsByProBono(sheet) {
+  var [caseColIdx, caseRange, cases] = getColumnCustom(sheet, 'primaryCase');
+  var [ppbIdx, primaryProBonoRange, primaryProBono] = getColumnCustom(sheet, 'primaryProBono');
   var ppbDict = {};
   var currRow = 2
   for (var name of primaryProBono) {
@@ -195,9 +192,8 @@ function combineRowsByProBono(sheetId) {
   }
 }
 
-function addPrimaryKeys(sheetId) {
-  var [ppbIdx, primaryProBonoRange, primaryProBono] = getColumnCustom(sheetId, 'primaryProBono', event='upload');
-  var sheet = getSheetById(sheetId);
+function addPrimaryKeys(sheet) {
+  var [ppbIdx, primaryProBonoRange, primaryProBono] = getColumnCustom(sheet, 'primaryProBono');
   var data = sheet.getDataRange().getValues();
   var primaryKeys = [];
   var primaryKeyName = 'PRIMARY KEY';
@@ -245,5 +241,6 @@ function getDateRange(){
     return '07/01/' + lastYear + ' - 06/30/' + year;
   }
 }
+
 
 

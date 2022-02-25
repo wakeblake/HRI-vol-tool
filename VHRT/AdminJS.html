@@ -205,7 +205,8 @@
           id: radio,
           name: 'checkbox',
           value: radio,
-          checked: isChecked ? true : false
+          checked: isChecked ? true : false,
+          disabled: isChecked ? true : false
         }).html(radio)
       ).append(
         $('<label>').prop({
@@ -243,7 +244,7 @@
     $('input[name="checkbox"]:checked').each(function() {
       reportHeaders.push($(this).val()) 
     });
-
+    
     google.script.run
       .withSuccessHandler(onSuccessBuildSheets)
       .withFailureHandler(error => {alert(error.message);})
@@ -300,3 +301,4 @@
   }
 
 </script>
+

@@ -1,14 +1,14 @@
 /* Data retreival helpers */
 
-function setTableProperties(sheetId, pk) {   // Assumes cases per attorney grouped by attorney in same cell in sheet //
-  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId));
+function setTableProperties(pk) {   // Assumes cases per attorney grouped by attorney in same cell in sheet //
+  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
+  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId));
   var managerEmailIdxJSON = PropertiesService.getScriptProperties().getProperty('managerEmailIdx');
 
-  var [caseNameIdx, caseNameRange, cases] = getColumnCustom(sheetId, 'primaryCase');
-  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(sheetId, 'primaryKey');
+  var protectedSheet = getSheetById(protectedSheetId);
+  var [caseNameIdx, caseNameRange, cases] = getColumnCustom(protectedSheet, 'primaryCase');
+  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
 
-  var protectedSheet = getSheetById(sheetId);
-  
   if (managerEmailIdxJSON) {
     var managerEmailIdx = JSON.parse(managerEmailIdxJSON);
     var caseNames = [];
@@ -34,31 +34,59 @@ function setTableProperties(sheetId, pk) {   // Assumes cases per attorney group
   Logger.log('Set table property "casePKs": ' + PropertiesService.getScriptProperties().getProperty('casePKs'));
 }
 
-function getManagerIdx(sheetId, email, event='userSubmit'){
-  var [meIdx, meRange, managerEmails] = getColumnCustom(sheetId, 'managerEmail', event=event);
+function getManagerIdx(email){
+  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
+  var sheetProperties = PropertiesService.getScriptProperties().getProperty(protectedSheetId);
+  var protectedSheet = getSheetById(protectedSheetId);
+
+  var managerEmailCol = sheetProperties['managerEmail']; 
+  var [meIdx, meRange, managerEmails] = getColumnCustom(protectedSheet, 'managerEmail');
   var isManagerIdx = [];
   for (var i=0; i < managerEmails.length; i++) {
     if(managerEmails[i] == email) {
       isManagerIdx.push(i+2);
     }
   }
-  Logger.log('User is office manager');
+  Logger.log('User is office manager: ' + JSON.stringify(isManagerIdx));
   return isManagerIdx;
 }
 
-function addFirmObj(sheetId, pk) {
-  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId));
-  var sheet = getSheetById(sheetId);
+function addFirmNameDict(pk) {
+  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
+  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId));
+  var protectedSheet = getSheetById(protectedSheetId);
 
-  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(sheetId, 'primaryKey', event='userSubmit');
-  var [primaryFirmIdx ,primaryFirmRange, firms] = getColumnCustom(sheetId, 'primaryFirm', event='userSubmit');
+  var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
+  var [primaryFirmIdx ,primaryFirmRange, firms] = getColumnCustom(protectedSheet, 'primaryFirm');
 
   var rowIdx = primaryKeys.indexOf(pk);
   var primaryFirmCol = sheetProperties['primaryFirm'];
-  var firmObj = {};
-  firmObj[primaryFirmCol] = sheet.getRange(rowIdx+2, primaryFirmIdx+1).getValue();
+  var firmNameDict = {};
+  firmNameDict[primaryFirmCol] = protectedSheet.getRange(rowIdx+2, primaryFirmIdx+1).getValue();
 
-  return firmObj;
+  Logger.log('Added firmNameDict: ' + JSON.stringify(firmNameDict));
+  return firmNameDict;
+}
+
+
+/* Logging user inputs helpers */
+
+function checkReportSheetUpdated(reportSheet, userInputData) {
+  var isUpdated = true;
+  var reportData = reportSheet.getDataRange().getDisplayValues();
+  for (var i=0; i < userInputData.length; i++) {
+    for(var j = reportData.length-1; j > 0; j--) {
+      if (JSON.stringify(userInputData[i]) == JSON.stringify(reportData[j])) {
+        break;
+      }
+    }
+    if (isUpdated == true) {
+      continue
+    };
+    isUpdated = false;
+    break
+  }
+  return isUpdated;
 }
 
 function getCommaSepRange(a1range) {
@@ -81,27 +109,6 @@ function getCommaSepRange(a1range) {
   }
 
   return a1List;
-}
-
-
-/* Logging user inputs helpers */
-
-function checkReportSheetUpdated(reportSheet, userInputData) {
-  var isUpdated = true;
-  var reportData = reportSheet.getDataRange().getDisplayValues();
-  for (var i=0; i < userInputData.length; i++) {
-    for(var j = reportData.length-1; j > 0; j--) {
-      if (JSON.stringify(userInputData[i]) == JSON.stringify(reportData[j])) {
-        break;
-      }
-    }
-    if (isUpdated == true) {
-      continue
-    };
-    isUpdated = false;
-    break
-  }
-  return isUpdated;
 }
 
 
@@ -158,7 +165,6 @@ function emailUserSubmission([userInputData, pk]) {
   );
 }
 
-
 function deleteTempProperties() {
   PropertiesService.getScriptProperties().deleteProperty('managerEmailIdx');
   PropertiesService.getScriptProperties().deleteProperty('casePKs');
@@ -171,5 +177,6 @@ function deleteTempProperties() {
 function logErrorFromHTML(pk) {
   Logger.log('ERROR: Failure to save user ' + pk + ' input data');
 }
+
 
 

@@ -23,34 +23,35 @@ function verifyRegisteredVolunteer([pk, email]) {
     var protectedData = protectedSheet.getDataRange().getDisplayValues();
     var headers = protectedData[0];
 
-    var [meIdx, meRange, managerEmails] = getColumnCustom(protectedSheetId, 'managerEmail', event='userSubmit');
-    var [peIdx, peRange, primaryEmails] = getColumnCustom(protectedSheetId, 'primaryEmail', event='userSubmit');
-    var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheetId, 'primaryKey', event='userSubmit');
+    var [meIdx, meRange, managerEmails] = getColumnCustom(protectedSheet, 'managerEmail');
+    var [peIdx, peRange, primaryEmails] = getColumnCustom(protectedSheet, 'primaryEmail');
+    var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
 
     if (primaryKeys.includes(pk)) {
-      var i = primaryKeys.indexOf(pk);
-      if (primaryEmails[i] == email) {
+      if (primaryEmails.includes(email)) {
         isVerified = true;
-      } else if (managerEmails[i] == email) {
+      } else if (managerEmails.includes(email)) {
         isVerified = true;
-        var cacheManagerEmailIdx = getManagerIdx(protectedSheetId, email);
-        PropertiesService.getScriptProperties().setProperty('managerEmailIdx', JSON.stringify(cacheManagerEmailIdx));
+        var cacheManagerEmailIdx = getManagerIdx(email);
+        PropertiesService.getScriptProperties().setProperty('ManagerEmailIdx', JSON.stringify(cacheManagerEmailIdx));
       }
     }
   }
 
+  Logger.log('User opened protected sheet: ' + protectedSheetId);
   Logger.log(JSON.stringify({'isVerified':isVerified, 'primaryKey':pk, 'email':email}));
   return [isVerified, pk, email];
 }
 
-function getTableData(pk, sheetId=PropertiesService.getScriptProperties().getProperty('protectedSheet')) {
+function getTableData(pk) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
   var tableCols = JSON.parse(PropertiesService.getScriptProperties().getProperty('reportColumns'));
   
-  setTableProperties(sheetId, pk);
+  setTableProperties(pk);
   var caseNames = JSON.parse(PropertiesService.getScriptProperties().getProperty('caseNames'));
-  var firmObj = addFirmObj(sheetId, pk);
+  var firmNameDict = addFirmNameDict(pk);
 
-  return [tableCols, caseNames, firmObj, pk];
+  return [tableCols, caseNames, firmNameDict, pk];
 }
 
 
@@ -100,10 +101,11 @@ function updateAggregateReport([userInputData, pk]) {
 /* RELOADING PAGE */
 
 function reloadPage(request) {
-  return 'https://script.google.com/macros/s/AKfycbx1YOJavPSshjBlVy9aR36B7zCmuX_DxANGUkIAptrc/dev' // Change to ScriptApp.getService().getUrl() when deployed //
+  return 'https://script.google.com/macros/s/AKfycbw8t3ilOY5SdfXMgf68NTmdmBqbq8ltu5tapM0WRJR5/dev' // Change to ScriptApp.getService().getUrl() when deployed //
 }
 
 function logUserPageReload() {
   Logger.log('User cancelled report submission and reloaded page');
 }
+
 
