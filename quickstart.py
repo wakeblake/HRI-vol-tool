@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[482]:
-
+# See https://developers.google.com/apps-script/api/quickstart/python#further_reading
 
 def oauth2_google(): 
     """Creates authorization credentials for downstream functions"""
