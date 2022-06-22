@@ -7,23 +7,25 @@ function onOpen(e) {
   var menu = SpreadsheetApp.getUi().createAddonMenu();
   menu.addItem('Import a file', 'buildImportSideBar');
   menu.addItem('Activate Sheets', 'buildSetupSideBar');
+  menu.addItem('Validate Emails', 'checkEmails');
+  menu.addItem('Reset', 'resetExtension');
   menu.addToUi();
 
   var adminUserExists = PropertiesService.getScriptProperties().getProperty('adminUser');
   var superUserExists = PropertiesService.getScriptProperties().getProperty('superUser');
   if ( !(adminUserExists && superUserExists) ) {
-    var adminUser = 'lfaulkner@hrionline.org'; //SpreadsheetApp.getActiveSpreadsheet().getOwner().getEmail()  // THIS SHOULD BE LAYNE //
+    var adminUser = 'humanrightsinitiativentx@gmail.com'; //SpreadsheetApp.getActiveSpreadsheet().getOwner().getEmail()  // THIS SHOULD BE LAYNE //
     var superUser = 'blake.holleman@gmail.com';  // CAN'T BE AN ALIAS ... can only owner access apps script? //
     PropertiesService.getScriptProperties().setProperties( {'adminUser': adminUser, 'superUser': superUser});
   }
 
   var exceptions = PropertiesService.getScriptProperties().getProperty('exceptions');
   if ( !(exceptions) ) {
-    PropertiesService.getScriptProperties().setProperty('exceptions', JSON.stringify({}));
+    setScriptProperty('exceptions', {});
   }
 
   // TODO deprecate this? //
-  PropertiesService.getScriptProperties().setProperty('adminLoggerUrl', 'https://docs.google.com/spreadsheets/d/1LCiLZ4PO7BC2lFVO0m_lvEncqOqpJKdScwyKpWF9-qo/edit#gid=0');
+  //setScriptProperty('adminLoggerUrl', 'https://docs.google.com/spreadsheets/d/1LCiLZ4PO7BC2lFVO0m_lvEncqOqpJKdScwyKpWF9-qo/edit#gid=0')
 }
 
 
@@ -50,7 +52,7 @@ function onEditInstallable(e) {
     
     // non-validated cells //
     if (!cellValidList[i]) {
-      isInvalidCell(sheetId, a1List[i], 'edit');
+      //isInvalidCell(sheetId, a1List[i], 'edit');
     }
 
 
@@ -71,7 +73,7 @@ function onEditInstallable(e) {
     raiseAlert(
       'You are attempting to edit the following protected cells:  ' + 
       JSON.stringify(rejected.map(i => i[0])),
-      'If you would like to edit these cells run "Activate Sheets" from the Add-ons menu.'
+      'If you would like to edit these cells, run "Activate Sheets" from the Extensions menu, then click "Update".'
     );
 
     for (var i=0; i < rejected.length; i++) {
@@ -96,7 +98,7 @@ function onChangeInstallable(e) {
       if (!sheetExists) {
         var isProtectedSheet = PropertiesService.getScriptProperties().getProperty('protectedSheet') == pk ? true : false;
         PropertiesService.getScriptProperties().deleteProperty(pk);
-        isProtectedSheet ? PropertiesService.getScriptProperties().setProperty('protectedSheet', '') : null;
+        isProtectedSheet ? setScriptProperty('protectedSheet', '') : null;
       }
     }
   }

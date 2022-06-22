@@ -10,7 +10,8 @@ function selectColumnName(elementId, event="upload") {
 
   var values = sheet.getActiveRange().getValues();
   var value = values[0][0];
-  
+  var headerRow = sheet.getActiveRange().getRow();
+
   var ui = SpreadsheetApp.getUi();
   var response = ui.alert(
     'You\'ve selected "' + value + '"',
@@ -18,11 +19,15 @@ function selectColumnName(elementId, event="upload") {
     ui.ButtonSet.YES_NO);
 
   if (response == ui.Button.YES) {
-    PropertiesService.getScriptProperties().setProperty(idDict[elementId], (value ? value : idDict[elementId]));
-    PropertiesService.getScriptProperties().setProperty('headerRow', sheet.getActiveRange().getRow());
-    Logger.log('Set attribute ' + idDict[elementId] + ': ' + PropertiesService.getScriptProperties().getProperty(idDict[elementId]));
+    var propertyName = idDict[elementId];
+    var data = value ? value : idDict[elementId];
+
+    setScriptProperty(propertyName, data);
+    setScriptProperty('headerRow', headerRow);
+    Logger.log('Set attribute ' + propertyName + ': ' + PropertiesService.getScriptProperties().getProperty(propertyName));
     return true;
   }
+
   return false;
 }
 
@@ -32,15 +37,16 @@ function saveSheetProperties(sheetKey='lastUploadedSheet') {
   var keepProperties = ['primaryFirm','primaryKey','primaryEmail','primaryProBono','primaryCase', 'managerEmail'];
   var sheetProperties = PropertiesService.getScriptProperties().getProperty(sheetId);
 
-  sheetProperties ? null : PropertiesService.getScriptProperties().setProperty(sheetId, JSON.stringify({}));
+  sheetProperties ? null : setScriptProperty(sheetId, {});
   sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId));
 
   Object.entries(properties).forEach(
     e => keepProperties.includes(e[0]) ? sheetProperties[e[0]] = e[1] : null
   );
 
-  PropertiesService.getScriptProperties().setProperty(sheetId, JSON.stringify(sheetProperties));
-  Logger.log('Saved sheet properties: ' + Boolean(JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId))));
+  setScriptProperty(sheetId, sheetProperties);
+  var isSaved = Boolean(JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId)));
+  Logger.log('Saved sheet properties: ' + isSaved);
 }
 
 function setExceptionsProperty(event, type) {
@@ -51,8 +57,8 @@ function setExceptionsProperty(event, type) {
   var exceptions = JSON.parse(PropertiesService.getScriptProperties().getProperty('exceptions'));
 
   if (!exceptions[type]) {
-    exceptions[type] = [];
-    PropertiesService.getScriptProperties().setProperty('exceptions', JSON.stringify(exceptions));
+    exceptions[type] = {};
+    setScriptProperty('exceptions', exceptions);
     Logger.log('Created attribute "exceptions", type "' + type + '"')   
     return;
   }
@@ -62,12 +68,19 @@ function setExceptionsProperty(event, type) {
 /* Formatting helpers */
 
 function getColumnCustom(sheet, colNamePropertyKey, event='upload') {
-  if (event == 'upload') {
-    var colName = PropertiesService.getScriptProperties().getProperty(colNamePropertyKey);
-  } else {
+  try {
     var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheet.getSheetId()));
     var colName = sheetProperties[colNamePropertyKey];
+  } catch (err) {
+    // TODO check if this is needed //
+    var colName = PropertiesService.getScriptProperties().getProperty(colNamePropertyKey);
   }
+  //if (event == 'upload') {
+  //  var colName = PropertiesService.getScriptProperties().getProperty(colNamePropertyKey);
+  //} else {
+  //  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheet.getSheetId()));
+  //  var colName = sheetProperties[colNamePropertyKey];
+  //}
   var data = sheet.getDataRange().getValues();
   var colIdx = data[0].indexOf(colName);
   var colRange = sheet.getRange(2, colIdx + 1, data.length-1,1);  // column range excluding header //
@@ -215,7 +228,7 @@ function addPrimaryKeys(sheet) {
   var updateRange = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn() + 1);
   updateRange.setValues(data);
 
-  PropertiesService.getScriptProperties().setProperty('primaryKey', primaryKeyName);
+  setScriptProperty('primaryKey', primaryKeyName);
 }
 
 function generatePk(chars, len) {

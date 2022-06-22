@@ -2,6 +2,7 @@
 # coding: utf-8
 
 # See https://developers.google.com/apps-script/api/quickstart/python#further_reading
+# See https://github.com/PyGithub/PyGithub#pygithub
 
 def oauth2_google(): 
     """Creates authorization credentials for downstream functions"""
@@ -91,7 +92,7 @@ def save_script(response, dir_path):
 
     
 def scripts_from_github(repo, file_or_dir):
-    """Pulls scripts from Github repo"""
+    """Pulls scripts from Github repo ("owner/project")"""
     from github import Github
     import os
     import json

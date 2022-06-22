@@ -55,7 +55,7 @@
           }
         })
         .withFailureHandler(error => {alert(error.message);})
-        .selectColumnName(id, 'setup');
+        .selectColumnName(id, 'update');
     }
   }
 
@@ -112,7 +112,8 @@
       radios: null,
       sheets: function() {createDivSelSheet(this.radios)}, 
       autoCols: function() {createDivSelHeader(this.radios, isChecked=true)}, 
-      manCols: function() {createDivSelHeader(this.radios, isChecked=false)}
+      manCols: function() {createDivSelHeader(this.radios, isChecked=false)},
+      updateSheets: function() {finalizeActiveSheets(event='update')}
     };
     var ids = Object.keys(nestedResultObj);
     for (var id of ids) {
@@ -127,6 +128,9 @@
       if (nestedResultObj[id].hasOwnProperty('manCols')) {
         radiosObj.radios = nestedResultObj[id]['manCols'];
         radiosObj.manCols();
+      }
+      if (nestedResultObj[id].hasOwnProperty('updateActiveSheets')) {
+        radiosObj.updateSheets();
       }
     }
   }
@@ -228,27 +232,35 @@
     google.script.run
       .withSuccessHandler( nestedResultObj => {
         onSuccessCreateRadios(nestedResultObj);
-        $('#sel-header').removeClass('d-none');
+        radios = Object.values(nestedResultObj)[0];
+        if (!(Object.keys(radios) == 'updateActiveSheets')) {
+          $('#sel-header').removeClass('d-none');
+        }
       })
       .withFailureHandler(error => {alert(error.message);})
       .createRadioButtons(id);
   }
 
 
-  function finalizeActiveSheets() {
+  function finalizeActiveSheets(event='insert') {
     $('#sel-header').addClass('d-none');
     $('#loader').removeClass('d-none');
     $('#working').removeClass('d-none');
+    var eventObj = {};
+    var reportHeaders = [];
 
-    var reportHeaders = []
-    $('input[name="checkbox"]:checked').each(function() {
-      reportHeaders.push($(this).val()) 
-    });
+    if (event == 'insert') {
+      $('input[name="checkbox"]:checked').each(function() {
+        reportHeaders.push($(this).val()) 
+      }); 
+    }
     
+    eventObj[event] = reportHeaders;
+
     google.script.run
       .withSuccessHandler(onSuccessBuildSheets)
       .withFailureHandler(error => {alert(error.message);})
-      .finalizeActiveSheets(reportHeaders);
+      .finalizeActiveSheets(eventObj);
   }
 
 
@@ -279,18 +291,18 @@
     google.script.run
       .withSuccessHandler(selectColumnName(element))
       .withFailureHandler(error => {alert(error.message);})
-      .updateActiveSheets();
+      .removeDataValidations();
   }
 
 
-  function resetActiveSheets() {
+  function closeActiveSheets() {
     $('#loader').removeClass('d-none');
     $('div[name="presetup"]').addClass('d-none');
 
     google.script.run
       .withSuccessHandler(resetProcess)
       .withFailureHandler(error => {alert(error.message);})
-      .resetActiveSheets();
+      .closeActiveSheets();
   }
 
 

@@ -33,7 +33,7 @@ function verifyRegisteredVolunteer([pk, email]) {
       } else if (managerEmails.includes(email)) {
         isVerified = true;
         var cacheManagerEmailIdx = getManagerIdx(email);
-        PropertiesService.getScriptProperties().setProperty('ManagerEmailIdx', JSON.stringify(cacheManagerEmailIdx));
+        setScriptProperty('managerEmailIdx', cacheManagerEmailIdx);
       }
     }
   }

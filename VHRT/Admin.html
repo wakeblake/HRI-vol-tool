@@ -28,12 +28,12 @@
         <ul class="container px-4" id="prop-list">
         </ul>
         <p class="text-left my-4"><span><i class="text-danger">
-          "Reset Sheet" will deactivate this sheet and close the current report summary sheet. To avoid a lapse in client submissions, click "Update Sheet".
+          "Close" will deactivate this sheet and close the current report sheet. To avoid a lapse in client submissions, click "Update".
           </i></span>
         </p>
         <p class="col text-center" id="pb-no-setup">
-          <input type="button" class="btn btn-primary my-4" id="b-update" value="Update Sheet" onclick="updateActiveSheets(this)">
-          <input type="button" class="btn btn-secondary" id="b-reset" value="Reset Sheet" onclick="resetActiveSheets()">
+          <input type="button" class="btn btn-primary mx-3 my-4" id="b-update" value="Update" onclick="updateActiveSheets(this)">
+          <input type="button" class="btn btn-secondary" id="b-reset" value="Close" onclick="closeActiveSheets()">
         </p>
       </div>
 

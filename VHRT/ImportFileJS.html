@@ -91,7 +91,7 @@
             .withSuccessHandler( sheetIsValidated => {
               google.script.run.raiseAlert(
                 'You\'ve successfully uploaded a new protected sheet!',
-                'Run "Activate Sheets" from the Add-ons menu to complete the setup process.'
+                'Run "Activate Sheets" from the Extensions menu to complete the setup process.'
               );
               resetProcess();
             })

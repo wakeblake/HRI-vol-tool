@@ -6,15 +6,17 @@ function test() {
 }
 
 function test2() {
-  //PropertiesService.getScriptProperties().deleteAllProperties();
+  PropertiesService.getScriptProperties().deleteAllProperties();
   //PropertiesService.getScriptProperties().deleteProperty('exceptions');
-  PropertiesService.getUserProperties().deleteAllProperties();
+  //PropertiesService.getUserProperties().deleteAllProperties();
 }
 
 function test3() {
-var reportColumns = [1,2,3,4,5];
-reportColumns = reportColumns.map( c => '<th>' + c + '</th>');
-console.log(reportColumns);
+  sheet = getSheetById('11026088');
+  var [keyIdx, keyRange, keyEmails] = getColumnCustom(sheet, 'primaryEmail');
+  console.log(keyRange.getA1Notation());
+  var a1List = getCommaSepRange(keyRange.getA1Notation());
+  console.log(a1List);
 }
 
 function getAuthToken() {
