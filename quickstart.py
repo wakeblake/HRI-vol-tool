@@ -96,11 +96,19 @@ def scripts_from_github(repo, file_or_dir):
     from github import Github
     import os
     import json
-
+    
+    home = os.getenv('HOME')
     fname = {'json':'JSON', 'gs':'SERVER_JS', 'html':'HTML'}
+    
+    # token = os.getenv('GITHUB_TOKEN')
+    # Build github api request from creds stored in gh package
+    token_path = home + '/.config/gh/hosts.yml'
+    with open(token_path) as f:
+        for l in f:
+            _l = l.strip()
+            if _l.startswith('oauth_token'):
+                token = _l.split(': ')[1]
 
-    # Build github api request
-    token = os.getenv('GITHUB_TOKEN')
     g = Github(token)
     repo = g.get_repo(repo)
     files = repo.get_contents(file_or_dir)
