@@ -13,10 +13,14 @@ function test2() {
 
 function test3() {
   sheet = getSheetById('11026088');
-  var [keyIdx, keyRange, keyEmails] = getColumnCustom(sheet, 'primaryEmail');
-  console.log(keyRange.getA1Notation());
-  var a1List = getCommaSepRange(keyRange.getA1Notation());
-  console.log(a1List);
+  var pk = '616-680-230';
+  var [keyIdx, keyRange, primaryKeys] = getColumnCustom(sheet, 'primaryKey');
+  var [mgrIdx, mgrRange, mgrEmails] = getColumnCustom(sheet, 'managerEmail');
+  var dict = {}
+  primaryKeys.map( (element, i) => {
+    return dict[element] = mgrEmails[i];
+  });
+  console.log(dict[pk]);
 }
 
 function getAuthToken() {

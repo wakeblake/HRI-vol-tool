@@ -191,8 +191,6 @@ function checkTableValidated() {
       tableData.push(res);
     }
     
-    //google.script.run.emailUserSubmission([tableData, pk]);                           HERE HERE HERE
-    
     google.script.run
       .withSuccessHandler(onSuccessSave)
       .withFailureHandler(error => {alert(error.message);})

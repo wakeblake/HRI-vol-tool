@@ -19,18 +19,12 @@ function verifyRegisteredVolunteer([pk, email]) {
   var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
 
   if (protectedSheetId) {
-    var protectedSheet = getSheetById(protectedSheetId);
-    var protectedData = protectedSheet.getDataRange().getDisplayValues();
-    var headers = protectedData[0];
-
-    var [meIdx, meRange, managerEmails] = getColumnCustom(protectedSheet, 'managerEmail');
-    var [peIdx, peRange, primaryEmails] = getColumnCustom(protectedSheet, 'primaryEmail');
-    var [pkIdx, pkRange, primaryKeys] = getColumnCustom(protectedSheet, 'primaryKey');
-
-    if (primaryKeys.includes(pk)) {
-      if (primaryEmails.includes(email)) {
+    var prDict = zipDCols(protectedSheetId, 'primaryKey', 'primaryEmail');
+    var mgrDict = zipDCols(protectedSheetId, 'primaryKey', 'managerEmail');
+    if (prDict[pk]) {
+      if (prDict[pk] == email) {
         isVerified = true;
-      } else if (managerEmails.includes(email)) {
+      } else if (mgrDict[pk] == email) {
         isVerified = true;
         var cacheManagerEmailIdx = getManagerIdx(email);
         setScriptProperty('managerEmailIdx', cacheManagerEmailIdx);
@@ -58,13 +52,15 @@ function getTableData(pk) {
 /* LOGGING INPUTS TO MAIN REPORT */
 
 function updateAggregateReport([userInputData, pk]) {
+
+  // Email adminUser as redundancy //
+  emailUserSubmission([userInputData, pk]);
+
+  // Update report //
   var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
   var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId));
   var reportSheetId = sheetProperties['reportSheet'];
   var reportSheet = getSheetById(reportSheetId);
-
-  var isUpdated;
-  var alertMessage = 'Hours successfully reported!';
   var now = Utilities.formatDate(new Date(), 'America/Chicago', 'yyyy-MM-dd HH:mm:ss');
   var casePKs = PropertiesService.getScriptProperties().getProperty('casePKs');
   casePKs = casePKs.length ? JSON.parse(casePKs) : false;
@@ -80,21 +76,24 @@ function updateAggregateReport([userInputData, pk]) {
     reportSheet.appendRow(row);
   }
 
-  isUpdated = checkReportSheetUpdated(reportSheet, userInputData);
+  // Return message to client //
+  var isUpdated = checkReportSheetUpdated(reportSheet, userInputData);
 
   if (!isUpdated) {
-    alertMessage = 'Please check your formatting and try again.  If the problem persists, contact lfaulkner@hrionline.org.'
+    var alertMessage = 'Please check your formatting and try again.  If the problem persists, contact humanrightsinitiativentx@gmail.com.'
     Logger.log('Data inputs not logged to reporting aggregate sheet');
     return [isUpdated, pk, alertMessage];
+  
+  } else {
+    var alertMessage = 'Hours successfully reported!';
+    Logger.log('Aggregate report updated: ' + isUpdated.toString());
+    Logger.log( 
+      casePKs ? 
+      '#(' + Object.values(casePKs).filter( (i,n) => {return Object.values(casePKs).indexOf(i) == n} ).toString() + ')' : 
+      '#' + pk 
+    );
+    return [isUpdated, pk, alertMessage];
   }
-
-  Logger.log('Aggregate report updated: ' + isUpdated.toString());
-  Logger.log( 
-    casePKs ? 
-    '#(' + Object.values(casePKs).filter( (i,n) => {return Object.values(casePKs).indexOf(i) == n} ).toString() + ')' : 
-    '#' + pk 
-  );
-  return [isUpdated, pk, alertMessage];
 }
 
 
