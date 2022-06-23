@@ -125,13 +125,13 @@ function getCommaSepRange(a1range) {
 // General admin maintenance //
 function emailOnFailedLogin([email, pk]) {
   var adminUser = PropertiesService.getScriptProperties().getProperty('adminUser');
-  var superUser = PropertiesService.getScriptProperties().getProperty('superUser');
+  //var superUser = PropertiesService.getScriptProperties().getProperty('superUser');
   var now = Utilities.formatDate(new Date(), 'America/Chicago', 'MM-dd-yyyy HH:mm:ss');
   GmailApp.sendEmail(
     adminUser, 
     'Failed User Login', 
     'Failed user ' + email + ' attempted login with key ' + pk + ' at ' + now + '.', 
-    {from: superUser, replyTo: email}
+    {from: adminUser, replyTo: email}
   );
 }
 
@@ -139,7 +139,7 @@ function emailUserSubmission([userInputData, pk]) {
   // Only works when sending from logged in user //
   
   var adminUser = PropertiesService.getScriptProperties().getProperty('adminUser');
-  var superUser = PropertiesService.getScriptProperties().getProperty('superUser');
+  //var superUser = PropertiesService.getScriptProperties().getProperty('superUser');
   var now = Utilities.formatDate(new Date(), 'America/Chicago', 'MM-dd-yyyy HH:mm:ss');
   var reformatDataStr = '';
   var reportColumns = JSON.parse(PropertiesService.getScriptProperties().getProperty('reportColumns'));
@@ -173,7 +173,7 @@ function emailUserSubmission([userInputData, pk]) {
     adminUser, 
     'Volunteer Has Reported Hours', 
     '',
-    {from: superUser,htmlBody: html}
+    {from: adminUser,htmlBody: html}
   );
 }
 
@@ -189,6 +189,7 @@ function deleteTempProperties() {
 function logErrorFromHTML(pk) {
   Logger.log('ERROR: Failure to save user ' + pk + ' input data');
 }
+
 
 
 

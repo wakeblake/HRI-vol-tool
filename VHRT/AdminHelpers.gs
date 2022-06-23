@@ -342,19 +342,19 @@ function createEmailRegex() {
   return emailRe;
 }
 
-function removeDataValidations() {
-  var protectedSheetId = PropertiesService.getScriptProperties().getProperty('protectedSheet');
-  var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(protectedSheetId));
-  var protectedSheet = getSheetById(protectedSheetId);
-  if (protectedSheet) {
-    protectedSheet.getDataRange().clearDataValidations();
+function removeDataValidations(sheetId) {
+  var sheet = getSheetById(sheetId);
+  if (sheet) {
+    var sheetProperties = JSON.parse(PropertiesService.getScriptProperties().getProperty(sheetId));
+    if (sheetProperties) {
+      sheet.getDataRange().clearDataValidations();
+      var reportSheetId = sheetProperties['reportSheet'];
+      var reportSheet = getSheetById(reportSheetId);
+      if (reportSheet) {
+        reportSheet.getDataRange().clearDataValidations();
+      }
+    }
   }  
-
-  var reportSheetId = sheetProperties['reportSheet'];
-  var reportSheet = getSheetById(reportSheetId);
-  if (reportSheet) {
-    reportSheet.getDataRange().clearDataValidations();
-  }
 
   Logger.log('Removed data validations from active sheets');
 }
@@ -362,9 +362,9 @@ function removeDataValidations() {
 function setPermissions(activeSheet) {
    var protection = activeSheet.protect().setDescription('Admin Use Only');
    var admin = PropertiesService.getScriptProperties().getProperty('adminUser');
-   var superUser = PropertiesService.getScriptProperties().getProperty('superUser');
+   //var superUser = PropertiesService.getScriptProperties().getProperty('superUser');
 
-   protection.addEditors([admin, superUser]);
+   protection.addEditors([admin]);
    Logger.log(activeSheet.getSheetName() + ' protected for admin use only');   
 }
 
@@ -424,3 +424,4 @@ function raiseAlert(alertTitle, alertString, buttons='OK') {
   var response = ui.alert(alertTitle, alertString, enums[buttons]);
   return response;
 }
+

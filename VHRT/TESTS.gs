@@ -12,20 +12,13 @@ function test2() {
 }
 
 function test3() {
-  sheet = getSheetById('11026088');
-  var pk = '616-680-230';
-  var [keyIdx, keyRange, primaryKeys] = getColumnCustom(sheet, 'primaryKey');
-  var [mgrIdx, mgrRange, mgrEmails] = getColumnCustom(sheet, 'managerEmail');
-  var dict = {}
-  primaryKeys.map( (element, i) => {
-    return dict[element] = mgrEmails[i];
-  });
-  console.log(dict[pk]);
+  return null;  
 }
 
 function getAuthToken() {
   var token = ScriptApp.getOAuthToken();
   console.log(token);
 }
+
 
 

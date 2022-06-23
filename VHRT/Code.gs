@@ -100,11 +100,12 @@ function updateAggregateReport([userInputData, pk]) {
 /* RELOADING PAGE */
 
 function reloadPage(request) {
-  return 'https://script.google.com/macros/s/AKfycbw8t3ilOY5SdfXMgf68NTmdmBqbq8ltu5tapM0WRJR5/dev' // Change to ScriptApp.getService().getUrl() when deployed //
+  return  ScriptApp.getService().getUrl() // When testing: 'https://script.google.com/macros/s/AKfycbw4oc80w-eqsaU-KsRj6iwplmPgUvz9wmSizDr7xjbU/dev'
 }
 
 function logUserPageReload() {
   Logger.log('User cancelled report submission and reloaded page');
 }
+
 
 

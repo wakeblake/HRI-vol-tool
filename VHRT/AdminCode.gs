@@ -26,10 +26,15 @@ function buildSetupSideBar() {
 function resetExtension() {
   var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
 
-  // Delete script properties except sheetProperties //
+  // Delete script properties except sheetProperties; remove formatting //
   var keep = [];
   for (var sheet of sheets) {
-    keep.push(sheet.getSheetId().toString());
+    sheetId = sheet.getSheetId().toString();
+    keep.push(sheetId);
+    removeDataValidations(sheetId);
+    for (var sheet of sheets) {
+      sheet.setTabColor(null);
+    }
   };
   var allProperties = PropertiesService.getScriptProperties().getProperties();
   for (var k of Object.keys(allProperties)) {
@@ -37,10 +42,6 @@ function resetExtension() {
   }
 
   // Remove settings //
-  removeDataValidations();
-  for (var sheet of sheets) {
-    sheet.setTabColor(null);
-  }
   
   raiseAlert('Success!', 'Volunteer Hours Reporting Tool was reset. Refresh your browser, then run "Activate Sheets" to continue.')
 }
@@ -133,4 +134,5 @@ function closeActiveSheets() {
     rs.setName(reportRenamed);
   } 
 }
+
 

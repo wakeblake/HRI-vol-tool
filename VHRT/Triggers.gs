@@ -12,11 +12,11 @@ function onOpen(e) {
   menu.addToUi();
 
   var adminUserExists = PropertiesService.getScriptProperties().getProperty('adminUser');
-  var superUserExists = PropertiesService.getScriptProperties().getProperty('superUser');
-  if ( !(adminUserExists && superUserExists) ) {
+  //var superUserExists = PropertiesService.getScriptProperties().getProperty('superUser');
+  if ( !(adminUserExists) ) {
     var adminUser = 'humanrightsinitiativentx@gmail.com'; //SpreadsheetApp.getActiveSpreadsheet().getOwner().getEmail()  // THIS SHOULD BE LAYNE //
-    var superUser = 'blake.holleman@gmail.com';  // CAN'T BE AN ALIAS ... can only owner access apps script? //
-    PropertiesService.getScriptProperties().setProperties( {'adminUser': adminUser, 'superUser': superUser});
+    //var superUser = 'blake.holleman@gmail.com';  // CAN'T BE AN ALIAS ... can only owner access apps script? //
+    setScriptProperty('adminUser', adminUser);
   }
 
   var exceptions = PropertiesService.getScriptProperties().getProperty('exceptions');
@@ -118,6 +118,7 @@ function onChangeInstallable(e) {
   }
   
 }
+
 
 
 
