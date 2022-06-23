@@ -4,7 +4,7 @@
 # See https://developers.google.com/apps-script/api/quickstart/python#further_reading
 # See https://github.com/PyGithub/PyGithub#pygithub
 
-def oauth2_google(): 
+def oauth2_google(project_creds_json): 
     """Creates authorization credentials for downstream functions"""
     from google_auth_oauthlib.flow import InstalledAppFlow
     from google.auth.transport.requests import Request
@@ -31,7 +31,7 @@ def oauth2_google():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                project_creds_json, SCOPES)
             creds = flow.run_local_server(port=8080)
             
         # Save the credentials for the next run

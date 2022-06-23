@@ -136,6 +136,8 @@ function emailOnFailedLogin([email, pk]) {
 }
 
 function emailUserSubmission([userInputData, pk]) {
+  // Only works when sending from logged in user //
+  
   var adminUser = PropertiesService.getScriptProperties().getProperty('adminUser');
   var superUser = PropertiesService.getScriptProperties().getProperty('superUser');
   var now = Utilities.formatDate(new Date(), 'America/Chicago', 'MM-dd-yyyy HH:mm:ss');

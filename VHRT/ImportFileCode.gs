@@ -50,10 +50,7 @@ function validateData() {
   }
   
   // Check email column formatting //
-  var [peIdx, peRange, primaryEmails] = getColumnCustom(uploadSheet, 'primaryEmail');
-  //var [meIdx, meRange, managerEmails] = getColumnCustom(uploadSheet, 'managerEmail');     // comment out unless manager emails set on upload //
-  isInvalidCell(sheetId, peRange.getA1Notation(), 'upload');
-  //isInvalidCell(sheetId, meRange.getA1Notation(), 'upload');
+  checkEmails('lastUploadedSheet');
 
   Logger.log('Finished validating uploaded sheet ' + sheetId);
   return true;
